@@ -1,0 +1,45 @@
+
+create schema esexpress;
+
+create extension pg_trgm;   -- requires -contrib
+
+CREATE TABLE geneinfo (
+	geneid     TEXT  PRIMARY KEY,
+	genesym    TEXT NOT NULL,
+	pvalbiovar NUMERIC NOT NULL
+);
+
+CREATE INDEX geneinfotrgm ON geneinfo USING gist(genesym gist_trgm_ops);
+
+
+
+
+CREATE TABLE genecorr (
+	dataset   TEXT,
+	fromgene  TEXT,
+	togene    TEXT[] NOT NULL,
+	corr      REAL[] NOT NULL,   --indexed over the other gene "to"
+	corrp     REAL[] NOT NULL,
+	corrv     REAL[] NOT NULL,
+	corrm     REAL[] NOT NULL,
+	PRIMARY KEY (dataset, fromgene)
+);
+
+CREATE TABLE geneexp (
+	dataset    TEXT,
+	fromgene   TEXT,
+	fromcell   TEXT[] NOT NULL,
+	exp        REAL[] NOT NULL,   --indexed over cells
+	PRIMARY KEY (dataset,fromgene)
+);
+
+
+
+CREATE TABLE genecorrdiff (
+	datasetA   TEXT,
+	datasetB   TEXT,
+	fromgene   TEXT,
+	corrdiff   DOUBLE[] NOT NULL,
+	PRIMARY KEY (datasetA, datasetB, fromgene);
+)
+

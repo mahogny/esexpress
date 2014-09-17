@@ -1,0 +1,39 @@
+#install.packages("RPostgreSQL")
+#install.packages("stringr")
+
+.libPaths(c(.libPaths(),"/var/lib/wwwrun/R/x86_64-suse-linux-gnu-library/3.1"))
+
+library("RPostgreSQL")
+library("stringr")
+
+
+auth <- read.table("auth.txt",stringsAsFactors = FALSE)[,1]
+dbname <- auth[1]
+dbuser <- auth[2]
+dbpass <- auth[3]
+
+drv <- dbDriver("PostgreSQL")
+con <- dbConnect(drv, dbname=dbname, user=dbuser, password=dbpass)
+
+expandarray <- function(x)   strsplit(substr(x,2,nchar(x)-1),",")[[1]]
+encodearray <- function(x)   do.call(paste,c(as.list(x),sep=","))
+encodearrayS <- function(x)  encodearray(sapply(x,function(y) paste("'",y,"'",sep="")))
+encodearrayRS <- function(x) encodearray(sapply(x,function(y) paste("\"",y,"\"",sep="")))
+
+
+
+dev.off.wrap <- function(){
+  dev.off()
+  invisible()
+}
+
+
+rs<-dbSendQuery(con, "select geneid,genesym from geneinfo")
+geneidsym <- fetch(rs,n=-1)
+
+mapidsym <- function(n)
+  merge(data.frame(geneid=n),geneidsym,all.x=TRUE)$genesym
+
+ensureensembl <- function(genes)
+  geneidsym$geneid[which(geneidsym$geneid %in% genes | geneidsym$genesym %in% genes)]
+

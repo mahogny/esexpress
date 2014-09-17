@@ -1,0 +1,82 @@
+body {
+	background: rgb(227, 225, 224);
+}
+
+.page-header {
+	background: #70BDBD;
+	margin-top: 0px;
+}
+
+.page-header h1 {
+	color: #fff;
+	font-family: 'HelveticaNeueLT Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+	font-size: 48px;
+	font-style: normal;
+	font-weight: normal;
+	margin-top: 0px;
+	padding-bottom: 9px;
+	padding-left: 9px;
+	padding-right: 9px;
+	padding-top: 20px;
+	text-shadow: 1px 1px #666;
+}
+
+.container {
+	background: rgb(255, 255, 255);
+	font-family: Verdana, sans-serif;
+	padding-left: 0px;
+	padding-right: 0px;
+	padding-top: 0px;
+}
+
+.landing {
+	padding-left: 9px;
+	padding-right: 9px;
+}
+
+.content {
+	padding-left: 9px;
+	padding-right: 9px;
+}
+
+.content table {
+	padding-right: 9px;
+}
+
+.top-buffer { 
+	margin-top:16px;
+}
+
+.browse {
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+.pager {
+	padding-left: 9px;
+	padding-right: 9px;
+}
+
+dl {
+	padding-left: 9px;
+}
+
+
+.transparent {
+	color: transparent;
+	
+}
+
+.corrtd {
+  margin:10px; 
+  padding:5px;
+  border:1px solid black;
+}
+
+.x.axis line {
+  stroke: #000000;
+}
+.x.axis path {
+  display: none;
+}
+
