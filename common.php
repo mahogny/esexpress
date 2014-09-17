@@ -1,12 +1,13 @@
 <?php
 
 $myfile = fopen("auth.txt", "r") or die("Unable to open file!");
+#$dbhost=fgets($myfile);
 $dbname=fgets($myfile);
 $dbuser=fgets($myfile);
 $dbpass=fgets($myfile);
 fclose($myfile);
 
-$db = pg_connect("host=localhost dbname=$dbname user=$dbuser password=$dbpass") or die('could not connect to database');
+$db = pg_connect("dbname=$dbname user=$dbuser password=$dbpass") or die('could not connect to database');
 
 ###############################################################################
 # Get a field or a default value
