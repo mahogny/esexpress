@@ -8,12 +8,13 @@ library("stringr")
 
 
 auth <- read.table("auth.txt",stringsAsFactors = FALSE)[,1]
-dbname <- auth[1]
-dbuser <- auth[2]
-dbpass <- auth[3]
+dbhost <- auth[1]
+dbname <- auth[2]
+dbuser <- auth[3]
+dbpass <- auth[4]
 
 drv <- dbDriver("PostgreSQL")
-con <- dbConnect(drv, dbname=dbname, user=dbuser, password=dbpass)
+con <- dbConnect(drv, dbname=paste("postgres://",dbhost,"/",dbname,sep=""), user=dbuser, password=dbpass)
 
 expandarray <- function(x)   strsplit(substr(x,2,nchar(x)-1),",")[[1]]
 encodearray <- function(x)   do.call(paste,c(as.list(x),sep=","))
