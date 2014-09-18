@@ -77,7 +77,7 @@ while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
           pg_execute($db, 'insert1', array($line['dataset'], $togene[$i], $corr[$i]));
         }
 pg_free_result($rs);
-pg_prepare($db, 'select1','SELECT * from comparecorr NATURAL JOIN (SELECT geneid AS togene, genesym FROM geneinfo) as foo ORDER BY abs(corr) DESC LIMIT 5');
+pg_prepare($db, 'select1','SELECT * from comparecorr NATURAL JOIN (SELECT geneid AS togene, genesym FROM geneinfo) as foo ORDER BY abs(corr) DESC');
 $rs=pg_execute($db, 'select1', array());
 $outcorr=array();
 while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))

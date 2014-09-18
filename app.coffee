@@ -31,8 +31,6 @@ search_genes = () ->
     alert("failed to query data, "+query_url)
 
 
-#fmt = d3.format ".3g,"
-
 
 search_gene_disp = (data) ->
   table = $ "#searchresult"
@@ -86,12 +84,17 @@ view_gene_disp = (geneinfo) ->
   form2 = form2.replace("GENESYM", geneinfo.genesym)
   root.prepend form2
   form2 = root.children(":first")
-  form2.id = thisid
+  #  form2.id = thisid
+  form2.attr id: thisid
   
   $("html, body").animate (scrollTop: form2.offset().top), "slow"
 
   root.find("#genepanel-close").click () ->
     form2.remove()
+
+  form2.find("#linkpubmed").attr href: ("http://www.ncbi.nlm.nih.gov/pubmed/?term="+geneinfo.genesym)
+  form2.find("#linkensembl").attr href: ("http://www.ensembl.org/Mus_musculus/Gene/Summary?g="+geneinfo.geneid)
+  form2.find("#linkgenecards").attr href: ("http://www.genecards.org/cgi-bin/carddisp.pl?gene="+geneinfo.genesym)
 
   root.find("#genepanel-toset").click () ->
     genesetlist = $ "#genesetlist"
@@ -179,16 +182,44 @@ view_gene_disp = (geneinfo) ->
 
 
   ########### highest correlations ##########
-  values=geneinfo["corr"]["es_lif"]
 
+  ## Fill list of correlation dataset
+  ecorrdataset = form2.find("#corrdataset")
+  for v in Object.keys(geneinfo["corr"])
+    eoption = $ "<option>"
+    eoption.append v
+    eoption.attr "value", v
+    ecorrdataset.append eoption    
 
-  table = root.find("#corrlist")
-  for rec in values
-    row = $ "<tr>"
-    row.append (onetd (makegenelink rec["geneid"], rec["genesym"]))
-    row.append (onetd rec["corr"])
-    table.append row
-
+  ##Fill table of correlations
+  fillcorrtable = () ->
+    ecorrdataset = form2.find("#corrdataset")
+    values=geneinfo["corr"][ecorrdataset.val()]
+    shownumcorr = +form2.find("#corrshownum").val()
+    table = form2.find("#corrlist")
+    table.empty()
+    maxloop = 1
+    #alert(JSON.stringify values)
+    if (typeof values) == "undefined"
+      row = $ "<tr>"
+      row.append "(not computed)"
+      table.append row
+    else
+      for rec in values
+        row = $ "<tr>"
+        row.append (onetd (makegenelink rec["geneid"], rec["genesym"]))
+        row.append (onetd rec["corr"])
+        table.append row
+        maxloop++
+        if maxloop == shownumcorr
+          break
+  
+  fillcorrtable()
+  
+  form2.find("#corrshownum").change () ->
+    fillcorrtable()
+  form2.find("#corrdataset").change () ->
+    fillcorrtable()
 
 
 oneline = (svg,x,y,data,color) ->
@@ -220,18 +251,19 @@ onetd = (content) ->
 
 
 
-#list of most related genes
-
-#histograms of exp levels
-
-#any way to retrieve a template here?
-#a short blurb about the gene could be nice too
-
 
 ###########################################################################
 # Open up a gene set view
 ###########################################################################
-  
+
+add_genelist = (genelist) ->
+    req = $.get genelist
+    req.success (data) ->
+      genesetlist = $ "#genesetlist"
+      genesetlist.val (genesetlist.val()+"\n"+data).trim()
+    req.fail (data) -> 
+      alert("failed to query data")
+
 
 getgeneset = () ->
   v = ($ "#genesetlist").val()
@@ -372,4 +404,12 @@ $ ->
   $('#reset-geneset').click ()->
     genesetlist = $ "#genesetlist"
     genesetlist.val ""
+
+  $('#genelist_pluripotency').click () ->
+    add_genelist "genelist_pluripotency.txt"
+
+
+
+
+
 

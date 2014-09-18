@@ -25,7 +25,7 @@
 
         <p>The data was produced and made available by the
         <a href="http://teichlab.org">Teichmann group</a> at EMBL-EBI.</p>
-</br>
+        </br>
       </div>
 
 
@@ -62,12 +62,7 @@
                 <textarea
                        class="form-control"
                        placeholder="Gene symbols or ENSEMBL IDs"
-                       id="genesetlist" rows="10">
-                         
-                         
-                         Cdc45  Zfy2
-                         
-                       </textarea>
+                       id="genesetlist" rows="10"></textarea>
                 <button type="button"
                         class="btn btn-primary"
                         id="view-geneset">
@@ -79,7 +74,13 @@
                     Clear
                 </button>
             </div>
-
+            
+            <br/>
+            <br/>
+            <a href="#" id="genelist_pluripotency">Add: Pluripotency genes</a>
+            <br/>
+            <br/>
+            
         </form>  
 
 
@@ -127,18 +128,53 @@
       </td></tr></table>
 
       <table width="100%">
-        <tr><td width="400px">
+        <tr><td width="400px" valign="top">
           <svg id="expressionhist"/>
-        </td><td id="countlegend" align="left">
+        </td><td id="countlegend" align="left" valign="top">
         </td><td align="right">
-          <table id="corrlist">
+          <table>
             <tr>
               <th>Gene</th>
               <th>Correlation</th>
             </tr>
+            <tbody id="corrlist">
+            </tbody>
+          </table>
+          <br/>
+          <table>
+            <tr>
+              <td>
+                Dataset: 
+              </td>
+              <td>
+                <select id="corrdataset" style="width: 150px;"></select>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Show: 
+              </td>
+              <td>
+                <select id="corrshownum" style="width: 150px;">
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                  <option value="200">200</option>
+                  <option value="500">500</option>
+                  <option value="1000">1000</option>
+                </select>
+              </td>
+            </tr>
           </table>
         </td></tr>
       </table>
+      <small>
+        <a id="linkpubmed">Pubmed</a> | 
+        <a id="linkensembl">ENSEMBL</a> | 
+        <a id="linkgenecards">Genecards</a>
+      </small>
 
     </div>
   </div>

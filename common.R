@@ -1,6 +1,8 @@
 #install.packages("RPostgreSQL")
 #install.packages("stringr")
 
+
+.libPaths(c(.libPaths(),"/net/isilonP/public/rw/homes/w3_rst01/R/x86_64-redhat-linux-gnu-library/3.1"))
 .libPaths(c(.libPaths(),"/var/lib/wwwrun/R/x86_64-suse-linux-gnu-library/3.1"))
 
 library("RPostgreSQL")
@@ -15,6 +17,9 @@ dbpass <- auth[4]
 
 drv <- dbDriver("PostgreSQL")
 con <- dbConnect(drv, dbname=paste("postgres://",dbhost,"/",dbname,sep=""), user=dbuser, password=dbpass)
+
+dbSendQuery(con,"SET search_path = public, esexpress;")
+
 
 expandarray <- function(x)   strsplit(substr(x,2,nchar(x)-1),",")[[1]]
 encodearray <- function(x)   do.call(paste,c(as.list(x),sep=","))

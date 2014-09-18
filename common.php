@@ -9,6 +9,8 @@ fclose($myfile);
 
 $db = pg_connect("host=$dbhost dbname=$dbname user=$dbuser password=$dbpass") or die('could not connect to database');
 
+pg_query($db, "SET search_path = public, esexpress;");
+
 ###############################################################################
 # Get a field or a default value
 function getdef($col, $var,$def)

@@ -10,8 +10,8 @@ $gene = getdef($_GET, 'gene', '');
 #echo $gene;
 
 if($gene!=''){
-#	$ps=pg_prepare($db, 'getgene','SELECT * FROM geneinfo WHERE to_tsvector(genesym || \' \' || geneid) @@ to_tsquery($1) LIMIT 20');
-  $ps=pg_prepare($db, 'getgene','SELECT *, similarity(genesym,$1) as sim FROM geneinfo WHERE similarity(genesym,$1)>0.1 OR $1=geneid LIMIT 20');
+#	$ps=pg_prepare($db, 'getgene','SELECT * FROM geneinfo WHERE to_tsvector(genesym || \' \' || geneid) @@ to_tsquery($1) LIMIT 15');
+  $ps=pg_prepare($db, 'getgene','SELECT * FROM (SELECT *, similarity(genesym,$1) as sim FROM geneinfo WHERE similarity(genesym,$1)>0.3 OR $1=geneid) as foo ORDER BY sim DESC LIMIT 20');
 	$rs=pg_execute($db, 'getgene', array($gene));
 } else {
 	$ps=pg_prepare($db, 'getgene','SELECT *, -1 as sim FROM geneinfo LIMIT 10');

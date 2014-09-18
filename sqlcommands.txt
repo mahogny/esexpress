@@ -3,7 +3,7 @@ create schema esexpress;
 
 create extension pg_trgm;   -- requires -contrib
 
-CREATE TABLE geneinfo (
+CREATE TABLE esexpress.geneinfo (
 	geneid     TEXT  PRIMARY KEY,
 	genesym    TEXT NOT NULL,
 	pvalbiovar NUMERIC NOT NULL
@@ -14,7 +14,7 @@ CREATE INDEX geneinfotrgm ON geneinfo USING gist(genesym gist_trgm_ops);
 
 
 
-CREATE TABLE genecorr (
+CREATE TABLE esexpress.genecorr (
 	dataset   TEXT,
 	fromgene  TEXT,
 	togene    TEXT[] NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE genecorr (
 	PRIMARY KEY (dataset, fromgene)
 );
 
-CREATE TABLE geneexp (
+CREATE TABLE esexpress.geneexp (
 	dataset    TEXT,
 	fromgene   TEXT,
 	fromcell   TEXT[] NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE geneexp (
 
 
 
-CREATE TABLE genecorrdiff (
+CREATE TABLE esexpress.genecorrdiff (
 	datasetA   TEXT,
 	datasetB   TEXT,
 	fromgene   TEXT,

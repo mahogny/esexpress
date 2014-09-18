@@ -6,7 +6,38 @@ library("DESeq2")
 source("common.R")
 
 
+normalizeDeseq <- function(cnt) t(t(cnt)/estimateSizeFactorsForMatrix(cnt))
 
+
+
+####################################################################################
+## Read ola counts from all the files
+readcntola <- function(f){
+  dat <- read.table(f,header=TRUE)
+  rownames(dat) <- dat[,1]
+  return(dat[,-1])
+}
+  
+cnt_es<-
+  cbind(
+    readcntola("../../data/ola_mES_2i_2.txt"),
+    readcntola("../../data/ola_mES_2i_3.txt"),
+    readcntola("../../data/ola_mES_2i_4.txt"),
+    readcntola("../../data/ola_mES_2i_5.txt"),
+    readcntola("../../data/ola_mES_a2i_2.txt"),
+    readcntola("../../data/ola_mES_a2i_3.txt"),
+    readcntola("../../data/ola_mES_lif_1.txt"),
+    readcntola("../../data/ola_mES_lif_2.txt"),
+    readcntola("../../data/ola_mES_lif_3.txt"))
+
+#remove ERCs and other crap
+cnt_es <- cnt_es[-grep("ERCC",rownames(cnt_es)),]
+cnt_es <- cnt_es[-grep("_",rownames(cnt_es)),]
+
+#remove dead cells, normalize
+removedcells <- read.table("../../data/removed_cells.txt",header=FALSE,sep=" ",stringsAsFactors=FALSE)[,2]
+cnt_es <- cnt_es[,which(colnames(cnt_es) %in% removedcells)]
+cnt_es <- normalizeDeseq(cnt_es)
 
 
 
@@ -14,35 +45,36 @@ source("common.R")
 ####################################################################################
 ## Count tables
 uploadcounts <- function(dataset, cnt){
+  dbGetQuery(con,sprintf("delete from geneexp where dataset='%s';",dataset))
   geneexp<-cbind(dataset,row.names(cnt),encodearrayS(colnames(cnt)),apply(cnt,1,encodearray))
   colnames(geneexp)<-c("dataset","fromgene","fromcell","exp")
   for(i in 1:nrow(geneexp)){
+    if(i %% 100 == 0)
+      print(i)
     v<-sprintf("insert into geneexp values ('%s','%s',array[%s],array[%s])",geneexp[i,1],geneexp[i,2],geneexp[i,3],geneexp[i,4])
     dbGetQuery(con,v)
   }
 }
 
-cnt_es<-read.table("../../n_counts_mES.txt",header=TRUE)
+#cnt_es<-read.table("../../n_counts_mES.txt",header=TRUE)
 
-genesub<-rownames(cnt_es)[1:200]
+genesub<-rownames(cnt_es)#[1:4000]
 
 ids<-which(rownames(cnt_es) %in% genesub)
 ds_ola_lif<-cnt_es[ids,grep("lif",colnames(cnt_es))]
 ds_ola_2i <-cnt_es[ids,grep("_2i_",colnames(cnt_es))]
 ds_ola_a2i<-cnt_es[ids,grep("_a2i_",colnames(cnt_es))]
 
-dbGetQuery(con,"delete from geneexp;")
 uploadcounts("es_lif",ds_ola_lif)
 uploadcounts("es_2i", ds_ola_2i)
 uploadcounts("es_a2i",ds_ola_a2i)
-dbReadTable(con,"geneexp")[,2]
+#dbReadTable(con,"geneexp")[,2]
 
 
 ####################################################################################
 ## Count tables for sandberg
-datsand<-read.table("../../Sandberg_data.txt",sep=" ", stringsAsFactors = FALSE)[,-(1:7)]
-sfsand <- estimateSizeFactorsForMatrix(datsand)
-nsand <- t(t(datsand)/sfsand)
+datsand<-read.table("../../data/Sandberg_data.txt",sep=" ", stringsAsFactors = FALSE)[,-(1:7)]
+nsand <- normalizeDeseq(datsand)
 
 
 ids<-which(rownames(nsand) %in% genesub)
@@ -55,46 +87,63 @@ uploadcounts("sandberg_midblast", ds_s_mblast)
 uploadcounts("sandberg_earlyblast",ds_s_eblast)
 
 
-unique(dbReadTable(con,"geneexp")[,1])
+#unique(dbReadTable(con,"geneexp")[,1])
+
+
+
+
 
 
 ####################################################################################
 ## Gene-gene correlations
-
 uploadcorr <- function(dataset, cnt){
+  
   thec <- cor(t(cnt),method="spearman")
   for(i in 1:nrow(thec)){
     thec[which(is.na(thec))]<-0
   }
-  linc<-cbind(dataset,
-              row.names(thec),
-              encodearrayS(colnames(thec)),
-              apply(thec,1,encodearray),
-              apply(cnt,1,encodearray),
-              apply(cnt,1,encodearray),
-              apply(cnt,1,encodearray)
-  )
-#  print(linc[1,])
-  colnames(linc)<-c("dataset","fromgene","togene","corr","corrp","corrv","corrm")
-  for(i in 1:nrow(linc)){
-    a <- linc[i,]
-    #a[which(is.na(a))]<-0
+  #colnames(linc)<-c("dataset","fromgene","togene","corr","corrp","corrv","corrm")
+  togene<-encodearrayS(colnames(thec))
+  dbGetQuery(con,sprintf("delete from genecorr WHERE dataset='%s';",dataset))
+  for(i in 1:nrow(thec)){
+    
+    onecor <- encodearray(thec[i,])
+    pval <- onecor
+    fromgene <- rownames(thec)[i]
+    
+    if(i %% 100 == 0)
+      print(sprintf("%s of %s",i,nrow(thec)))
+    
     v<-sprintf("insert into genecorr values ('%s','%s',array[%s],array[%s],array[%s],array[%s],array[%s])",
-               a[1],a[2],a[3],a[4],a[5],a[6],a[7])
+      dataset,fromgene, togene, onecor, pval, pval, pval)
     dbGetQuery(con,v)
   }
 }
-dbGetQuery(con,"delete from genecorr;")
 
 
-uploadcorr("es_lif",ds_ola_lif)
+
+
+## Pull out a subset for correlation
+#Reduce to around 5000 genes. it should be the ones with a few cells having some expr
+getexpressed <- function(ds){
+  foo <- apply(ds_ola_lif>50,1,function(x) length(which(x))>3)    #30 for 600 genes
+  ds[which(foo),]
+}
+#red_ds_ola_2i <- getexpressed(ds_ola_2i)
+#nrow(red_ds_ola_2i)
+
+
+
+
+uploadcorr("es_lif",getexpressed(ds_ola_lif))
+#uploadcorr("es_lif",ds_ola_lif)
 
 
 
 
 ####################################################################################
 ## Gene info
-geneinfo <- read.csv("../../../liora/ensembl2genename.txt",stringsAsFactors=FALSE)
+geneinfo <- read.csv("../../data/ensembl2genename.txt",stringsAsFactors=FALSE)
 geneinfo <- cbind(geneinfo,0)
 colnames(geneinfo)<-c("geneid","genesym","pvalbiovar")
 geneinfo<-as.data.frame(geneinfo,stringsAsFactors=FALSE)
@@ -107,69 +156,10 @@ dbReadTable(con,"geneinfo")
 
 
 
-####################################################################################
-## 
-####################################################################################
-## 
-####################################################################################
-## 
-####################################################################################
-## 
-####################################################################################
-## 
-####################################################################################
-## 
+
+#genelist_1 <- sort(unique(read.csv("data/one.csv",stringsAsFactors=FALSE)[,2]))
+#write.table(genelist_1,"genelist_pluripotgenes.txt",row.names=FALSE,col.names = FALSE,quote = FALSE)
 
 
-
-## hm. no point doing like-search for geneid!
-rs<-dbSendQuery(con, "select * from geneinfo where geneid::tsvector @@ 'ENSMUSG00000078480'::tsquery")
-fetch(rs,n=-1)
-
-
-rs<-dbSendQuery(con, "select * from geneinfo where genesym::tsvector @@ 'Rgs6'::tsquery")
-fetch(rs,n=-1)
-rs<-dbSendQuery(con, "select * from geneinfo where to_tsvector(genesym) @@ to_tsquery('rgs6')")
-fetch(rs,n=-1)
-
-## Submits a statement
-rs <- dbSendQuery(con, "select * from geneinfo")
-fetch(rs,n=-1)
-
-## Submit and execute the query
-dbGetQuery(con, "select * from R_packages")
-
-
-rs<-dbSendQuery(con, "select * from arrtest")
-x<-fetch(rs,n=-1)
-
-dbWriteTable(con,"arrtest",x,append=TRUE,row.names=FALSE)
-
-cat(c(1,2,3),sep = ",")
-sprintf("{%s}",cat(as.character(c(1,2,3)),sep = ","))
-str_join(c(1,2,3))
-?str_join
-
-paste("{","aoue","}",sep="")
-
-#foo<-"{1,2,3,4}"
-#as.double(strsplit(substr(foo,2,nchar(foo)-1),",")[[1]])
-
-
-
-
-lapply(as.list(x)$a,expandarray)
-unlist(lapply(as.list(x)$a,expandarray))  #reshape dimension here, and done. not nice though
-
-
-x<-rbind(x,x)
-apply(x,1,expandarray)
-?lapply
-
-## Closes the connection
-#dbDisconnect(con)
-#dbUnloadDriver(drv)
-
-
-
+grep("Pou",geneinfo$genesym)
 
