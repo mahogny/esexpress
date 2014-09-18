@@ -279,8 +279,8 @@ getgeneset = () ->
 
 view_geneset = () ->
   setquery = getgeneset()
-  if setquery.geneset.length<2
-    alert("Need to select more than one gene")
+  if setquery.geneset.length<2 || setquery.geneset.length>50
+    alert("Need to select more than one gene, and at the very most 50")
   else
     query_url = "geneset.php?q=#{JSON.stringify setquery}"   #todo, use POST. and different query!
     req = $.getJSON query_url
@@ -308,13 +308,20 @@ view_geneset_disp = (data) ->
 
   $("html, body").animate (scrollTop: form2.offset().top), "slow"
 
+  ############# gene-gene correlation map
   setquery = getgeneset()
-  query_url = "corrgenegene.php?q=#{JSON.stringify setquery}"   #todo, use POST. and different query!
+  setquery.graphw=2000
+  query_url = "corrgenegene.php?q=#{JSON.stringify setquery}"
+  imglink = $ "<a>"
+  imglink.attr "href", query_url
   img = $ "<img>"
+  setquery = getgeneset()
+  query_url = "corrgenegene.php?q=#{JSON.stringify setquery}"
   img.attr src: query_url
   img.attr width:  500
   img.attr height: 500
-  root.find("#genesetcorr1").append img
+  imglink.append img
+  root.find("#genesetcorr1").append imglink
 
   ############# gene-cell correlation map
   imglink = $ "<a>"
@@ -325,7 +332,7 @@ view_geneset_disp = (data) ->
   root.find("#genesetcorr2").append imglink
 
 
-  elegend = (root.find("#genesetcorr2")) 
+  elegend = (root.find("#genesetcorr2legend")) 
   echecks = {}
   echecksid = {}
   for k in Object.keys(thecol)

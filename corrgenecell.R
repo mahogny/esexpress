@@ -8,6 +8,7 @@ if(!exists("genes")){
     "ENSMUSG00000000028"
   )
   genes <- c("Gnai3","Pbsn","H19","Apoh","Cav2","Tbx2","Zfy2","Wnt9a","Xpo6","Axin2")
+  genes <- read.table("genelist_pluripotency.txt",stringsAsFactors = FALSE)[,1]
 }
 if(!exists("datasets"))
   datasets<-c("es_lif")
@@ -77,6 +78,8 @@ totmatrix <- log(totmatrix+1)
 
 bitmap("|cat",type="pngalpha",width=graphw,height=graphw,units="px")
 
+cor(t(totmatrix))
+
 my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
 rowcol <- rep("black",nrow(totmatrix))
 rowcol[which(totds == "es_lif")] <- "#8B0000"
@@ -92,12 +95,15 @@ heatmap.2(
   key.title="Expression",
   key.xlab="",
   key.ylab="",
-  labRow = NA,
   RowSideColors = rowcol, 
   trace="none", 
   col=my_palette,
+  #dendrogram="none",   #optional
+  labRow=NA,
+  #labCol=NA,  #optional
   cexCol=2)
 
+#hclust(dist(totmatrix))
 
 dev.off.wrap()
 

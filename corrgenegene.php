@@ -15,6 +15,8 @@
   $cmd = $cmd . "graphw<-" . $graphw . ";";
   $cmd = $cmd . "source(\"corrgenegene.R\")' | /usr/bin/R --vanilla --slave";
 
+  #echo $cmd;
+
   $handle = popen($cmd, "r");
   $ret = "";
   do{

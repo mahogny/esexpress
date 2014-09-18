@@ -6,6 +6,8 @@ if(!exists("genes")){
      "ENSMUSG00000000126",
      "ENSMUSG00000000028"
      )
+   
+   genes <- read.table("genelist_pluripotency.txt",stringsAsFactors = FALSE)[,1]
 }
 genes <- ensureensembl(genes)
 if(!exists("graphw"))
@@ -26,7 +28,7 @@ for(i in 1:nrow(dat)){
 }
 dbSendQuery(con, "DROP TABLE geneset")
 colnames(mat)<-mapidsym(togenes[ind])
-rownames(mat)<-mapidsym(genes)
+rownames(mat)<-mapidsym(togenes[ind])
 
 
 

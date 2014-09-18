@@ -9,6 +9,7 @@
 
 #freaking dangerous command!######## TODO clean
 
+
   $cmd = "echo 'genes <- c();";
   foreach($geneid as $s){
     $cmd=$cmd . "genes <- c(genes,\"".$s."\");";
