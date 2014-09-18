@@ -69,7 +69,7 @@ view_gene = (gene) ->
   req.success (data) ->
     view_gene_disp(data)
   req.fail (data) -> 
-    alert("failed to query data")
+    alert("failed to query data, "+query_url)
 
 
 

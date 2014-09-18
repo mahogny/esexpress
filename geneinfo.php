@@ -47,18 +47,15 @@ $time_getgenei = microtime()-$time_getgenei;
 $time_getgeneall = microtime();
 $ps=pg_prepare($db, 'getgeneall','SELECT geneid,genesym FROM geneinfo');
 $rs=pg_execute($db, 'getgeneall', array());
-$listofgenes=[];
+$listofgenes=array();
 while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
   $listofgenes[$line["geneid"]]=$line["genesym"];
 pg_free_result($rs);
 $time_getgenei = microtime()-$time_getgenei;
 
 
-#print_r($listofgenes);
-
 ### Get all gene correlations
 $time_getcorr = microtime();
-
 pg_prepare($db, 'select1','SELECT * from genecorr WHERE fromgene=$1');
 $rs=pg_execute($db, 'select1', array($geneid));
 $outcorr=array();
@@ -74,14 +71,12 @@ while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
     else
       $togenesym = "missing in db ".$togeneid;
     $thiscorr = $corr[$i];
-#print($thiscorr);
     if($togeneid != $geneid)
       $outcorr[$line['dataset']][]=array('geneid' => $togeneid, 'genesym' => $togenesym, 'corr' => $thiscorr);
     }
   }
 pg_free_result($rs);
 $results['corr']=$outcorr;
-
 $time_getcorr = microtime() - $time_getcorr;
 
 
@@ -89,7 +84,6 @@ $results['time_getgene']=$time_getgene;
 $results['time_getgenei']=$time_getgenei;
 $results['time_getcorr']=$time_getcorr;
 
-#print($outcorr);
 
 
 
@@ -97,11 +91,6 @@ $results['time_getcorr']=$time_getcorr;
 header('filename="data.json"; ');
 header('Content-Type: application/json; ');
 echo json_encode($results);
-
-
-#       echo prettyPrint($results);  #, indent=2, separators=(',', ': ')
-
-
 
 
 include "end.php";
