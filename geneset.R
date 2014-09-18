@@ -10,7 +10,8 @@ if(!exists("genes")){
      "ENSMUSG00000000126",
      "ENSMUSG00000000028"
    )
-   
+
+   genes <- read.table("genelist_pluripotency.txt",stringsAsFactors = FALSE)[,1]
 }
 
 
@@ -21,9 +22,10 @@ mapidsym <- function(n) merge(data.frame(geneid=n),geneidsym,all.x=TRUE)$genesym
 
 genes <- geneidsym$geneid[which(geneidsym$geneid %in% genes | geneidsym$genesym %in% genes)]
 
-dbSendQuery(con, "CREATE TEMPORARY TABLE geneset (fromgene TEXT)")
+dbSendQuery(con, "CREATE TEMPORARY TABLE geneset (fromgene TEXT);")
+
 dbWriteTable(con,"geneset",data.frame(fromgene=genes),append=TRUE,row.names=FALSE)
-rs<-dbSendQuery(con, "select * from genecorr where fromgene in (select * from geneset)")
+rs<-dbSendQuery(con, "select * from genecorr where fromgene in (select * from geneset);")
 dat <- fetch(rs,n=-1)
 
 
@@ -35,7 +37,7 @@ for(i in 1:nrow(dat)){
 }
 dbSendQuery(con, "DROP TABLE geneset")
 colnames(mat)<-mapidsym(togenes[ind])
-rownames(mat)<-mapidsym(genes)
+rownames(mat)<-mapidsym(togenes[ind])   #was genes
 
 
 cat("{")
