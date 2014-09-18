@@ -205,6 +205,8 @@ view_gene_disp = (geneinfo) ->
       row.append "(not computed)"
       table.append row
     else
+      values = values.sort (a,b) -> 
+        Math.abs(b.corr)-Math.abs(a.corr)
       for rec in values
         row = $ "<tr>"
         row.append (onetd (makegenelink rec["geneid"], rec["genesym"]))

@@ -132,10 +132,15 @@ getexpressed <- function(ds){
 #red_ds_ola_2i <- getexpressed(ds_ola_2i)
 #nrow(red_ds_ola_2i)
 
-
-
+ncol(es_cnt)  ##check, 704???
 
 uploadcorr("es_lif",getexpressed(ds_ola_lif))
+uploadcorr("es_2i", getexpressed(ds_ola_2i))
+uploadcorr("es_a2i",getexpressed(ds_ola_a2i))
+uploadcorr("sandberg_earlyblast",getexpressed(ds_s_eblast))
+uploadcorr("sandberg_midblast",  getexpressed(ds_s_mblast))
+uploadcorr("sandberg_lateblast", getexpressed(ds_s_lblast))
+
 #uploadcorr("es_lif",ds_ola_lif)
 
 

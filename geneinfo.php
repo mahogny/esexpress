@@ -13,6 +13,7 @@ include "common.php";
 
 
 ### Query database for expression counts, for all datasets
+$time_getgene = microtime();
 $query = json_decode(getdef($_GET,'q','{}'),TRUE);
 $geneid = getdef($query, 'gene', '');
 $ps=pg_prepare($db, 'getgene','SELECT * FROM geneexp WHERE fromgene=$1');
@@ -23,14 +24,15 @@ while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
         $resultsexp[$line['dataset']]=array('fromcell' => splitcomma($line['fromcell']), 'exp' => splitcomma($line['exp']));
         }
 pg_free_result($rs);
+$time_getgene = microtime()-$time_getgene;
 
 $results=array();
 $results['dataset']=$resultsexp;
 $results['geneid']=$geneid;
 
 
-
-### Query database for gene info
+### Query database for gene info --- this particular gene
+$time_getgenei = microtime();
 $ps=pg_prepare($db, 'getgenei','SELECT * FROM geneinfo WHERE geneid=$1 LIMIT 1');
 $rs=pg_execute($db, 'getgenei', array($geneid));
 while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
@@ -38,57 +40,54 @@ while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
         $results['genesym']=$line['genesym'];
         }
 pg_free_result($rs);
+$time_getgenei = microtime()-$time_getgenei;
 
 
-
-
-### Query for most correlated genes
-#$ps=pg_prepare($db, 'getgenecorr','SELECT * FROM genecorr WHERE fromgene=$1');
-#$rs=pg_execute($db, 'getgenecorr', array($geneid));
-#$resultscorr=array();
-#while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
-#        {
-#        $togene=splitcomma($line['togene']);
-#        $corr=splitcomma($line['corr']);
-#        $arr=array();
-#        for($i=0;$i<sizeof($togene);$i++)
-#         {
-#         $arr[]=array($togene[$i],$corr[$i]);
-##$arr[$togene[$i]]=$corr[$i];
-#         }
-#        $resultscorr[$line['dataset']]=$arr;
-# #       $resultscorr[$line['dataset']]=$arr;
-#        }
-#pg_free_result($rs);
-#$results['corr']=$resultscorr;
-
-
-#expand the array into a temporary table. is there a one-liner here?
-$ps=pg_prepare($db, 'create1','create temporary table comparecorr(dataset TEXT, togene TEXT, corr REAL)');
-pg_execute($db, 'create1', array());
-pg_prepare($db, 'insert1','INSERT INTO comparecorr VALUES($1,$2,$3)');
-pg_prepare($db, 'getgenecorr','SELECT * FROM genecorr WHERE fromgene=$1');
-$rs=pg_execute($db, 'getgenecorr', array($geneid));
+### Query database for a map ensemblid -> genesym
+$time_getgeneall = microtime();
+$ps=pg_prepare($db, 'getgeneall','SELECT geneid,genesym FROM geneinfo');
+$rs=pg_execute($db, 'getgeneall', array());
+$listofgenes=[];
 while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
-        {
-        $togene=splitcomma($line['togene']);
-        $corr=splitcomma($line['corr']);
-        for($i=0;$i<sizeof($togene);$i++)
-          pg_execute($db, 'insert1', array($line['dataset'], $togene[$i], $corr[$i]));
-        }
+  $listofgenes[$line["geneid"]]=$line["genesym"];
 pg_free_result($rs);
-pg_prepare($db, 'select1','SELECT * from comparecorr NATURAL JOIN (SELECT geneid AS togene, genesym FROM geneinfo) as foo ORDER BY abs(corr) DESC');
-$rs=pg_execute($db, 'select1', array());
+$time_getgenei = microtime()-$time_getgenei;
+
+
+#print_r($listofgenes);
+
+### Get all gene correlations
+$time_getcorr = microtime();
+
+pg_prepare($db, 'select1','SELECT * from genecorr WHERE fromgene=$1');
+$rs=pg_execute($db, 'select1', array($geneid));
 $outcorr=array();
 while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
-        {
-        $togene = $line['togene'];
-        if($togene != $geneid)
-          $outcorr[$line['dataset']][]=array('geneid' => $togene, 'genesym' => $line['genesym'], 'corr' => $line['corr']);
-        }
+  {
+  $corr=splitcomma($line['corr']);
+  $togene=splitcomma($line['togene']);
+  for($i=0;$i<sizeof($togene);$i++)
+    {
+    $togeneid = $togene[$i];
+    if(array_key_exists($togeneid,$listofgenes))
+      $togenesym = $listofgenes[$togeneid];
+    else
+      $togenesym = "missing in db ".$togeneid;
+    $thiscorr = $corr[$i];
+#print($thiscorr);
+    if($togeneid != $geneid)
+      $outcorr[$line['dataset']][]=array('geneid' => $togeneid, 'genesym' => $togenesym, 'corr' => $thiscorr);
+    }
+  }
 pg_free_result($rs);
 $results['corr']=$outcorr;
 
+$time_getcorr = microtime() - $time_getcorr;
+
+
+$results['time_getgene']=$time_getgene;
+$results['time_getgenei']=$time_getgenei;
+$results['time_getcorr']=$time_getcorr;
 
 #print($outcorr);
 

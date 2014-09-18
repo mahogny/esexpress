@@ -33,9 +33,10 @@ dev.off.wrap <- function(){
   invisible()
 }
 
-
+time_getgeneinfo <- proc.time()[3]
 rs<-dbSendQuery(con, "select geneid,genesym from geneinfo")
 geneidsym <- fetch(rs,n=-1)
+time_getgeneinfo <- proc.time()[3]-time_getgeneinfo
 
 mapidsym <- function(n)
   merge(data.frame(geneid=n),geneidsym,all.x=TRUE)$genesym
