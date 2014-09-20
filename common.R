@@ -21,7 +21,15 @@ con <- dbConnect(drv, dbname=paste("postgres://",dbhost,"/",dbname,sep=""), user
 dbSendQuery(con,"SET search_path = public, esexpress;")
 
 
-expandarray <- function(x)   strsplit(substr(x,2,nchar(x)-1),",")[[1]]
+expandarray <- function(x){
+  toret<-NA
+  try(function(){
+    toret<-strsplit(substr(x,2,nchar(x)-1),",")[[1]]
+  }, function(){
+    cat(x)
+  })
+  toret
+}
 encodearray <- function(x)   do.call(paste,c(as.list(x),sep=","))
 encodearrayS <- function(x)  encodearray(sapply(x,function(y) paste("'",y,"'",sep="")))
 encodearrayRS <- function(x) encodearray(sapply(x,function(y) paste("\"",y,"\"",sep="")))

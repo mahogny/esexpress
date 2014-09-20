@@ -9,6 +9,7 @@ if(!exists("genes")){
    
    genes <- read.table("genelist_pluripotency.txt",stringsAsFactors = FALSE)[,1]
 }
+
 genes <- ensureensembl(genes)
 if(!exists("graphw"))
   graphw<-500
@@ -32,26 +33,33 @@ rownames(mat)<-mapidsym(togenes[ind])
 
 
 
-#Set the diagonal to 0, or the output matrix will be saturated
-for(i in 1:ncol(mat)){
-  mat[i,i]<-0
-}
 
-my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
 
 bitmap("|cat",type="pngalpha",width=graphw,height=graphw,units="px")
-heatmap.2(
-  density.info = "none",
-  mat,
-  margins=c(10,10),
-  key=TRUE,
-  key.title = "Correlation",
-  key.xlab="",
-  key.ylab="",
-  trace="none",
-  col=my_palette
-  )
 
+if(ncol(mat)>1){
+  #Set the diagonal to 0, or the output matrix will be saturated
+  for(i in 1:ncol(mat)){
+    mat[i,i]<-0
+  }
+  
+  my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
+  
+  heatmap.2(
+    density.info = "none",
+    mat,
+    margins=c(10,10),
+    key=TRUE,
+    key.title = "Correlation",
+    key.xlab="",
+    key.ylab="",
+    trace="none",
+    col=my_palette
+  )
+} else {
+  plot(0,0, xlim=c(0,100),ylim=c(0,100))
+  text(50,50,labels = sprintf("Too few computed genes to display (%d)",ncol(mat)))
+}
 dev.off.wrap()
 
 # tempfile <- tempfile()

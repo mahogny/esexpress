@@ -267,6 +267,9 @@ add_genelist = (genelist) ->
       alert("failed to query data")
 
 
+onlyUnique = (value,index,self) ->
+  (self.indexOf value) == index
+
 getgeneset = () ->
   v = ($ "#genesetlist").val()
   v = (v.split "\n").join " "
@@ -274,6 +277,7 @@ getgeneset = () ->
   v = (v.split "\t").join " "
   v = v.split " "
   v = v.filter ((d)->d!="")
+  v = v.filter onlyUnique
   setquery =
     geneset: v
 
