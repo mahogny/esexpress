@@ -16,9 +16,10 @@ if(!exists("graphw"))
 
 
 dbSendQuery(con, "CREATE TEMPORARY TABLE geneset (fromgene TEXT)")
-dbWriteTable(con,"geneset",data.frame(fromgene=genes),append=TRUE,row.names=FALSE)
+dbWriteTable(con,"geneset",data.frame(fromgene=genes, stringsAsFactors=FALSE),append=TRUE,row.names=FALSE)
 rs<-dbSendQuery(con, "select * from genecorr where fromgene in (select * from geneset)")
 dat <- fetch(rs,n=-1)
+dbSendQuery(con, "DROP TABLE geneset")
 
 
 togenes <- expandarray(dat$togene[1])
@@ -27,7 +28,6 @@ mat <- matrix(nrow=0,ncol=length(ind))
 for(i in 1:nrow(dat)){
   mat<-rbind(mat,as.double(expandarray(dat$corr[i])[ind]))
 }
-dbSendQuery(con, "DROP TABLE geneset")
 colnames(mat)<-mapidsym(togenes[ind])
 rownames(mat)<-mapidsym(togenes[ind])
 

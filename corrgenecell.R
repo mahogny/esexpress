@@ -19,7 +19,7 @@ genes <- ensureensembl(genes)
 
 
 dbSendQuery(con, "CREATE TEMPORARY TABLE geneset (fromgene TEXT PRIMARY KEY)")
-dbWriteTable(con,"geneset",data.frame(fromgene=genes),append=TRUE,row.names=FALSE)
+dbWriteTable(con,"geneset",data.frame(fromgene=genes, stringsAsFactors=FALSE),append=TRUE,row.names=FALSE)
 
 dbSendQuery(con, "CREATE TEMPORARY TABLE datasets (dataset TEXT PRIMARY KEY)")
 dbWriteTable(con,"datasets",data.frame(dataset=datasets),append=TRUE,row.names=FALSE)

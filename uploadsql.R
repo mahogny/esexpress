@@ -1,7 +1,3 @@
-source("http://bioconductor.org/biocLite.R")
-biocLite("DESeq2")
-
-
 library("DESeq2")
 source("common.R")
 
@@ -164,7 +160,25 @@ dbReadTable(con,"geneinfo")
 
 #genelist_1 <- sort(unique(read.csv("data/one.csv",stringsAsFactors=FALSE)[,2]))
 #write.table(genelist_1,"genelist_pluripotgenes.txt",row.names=FALSE,col.names = FALSE,quote = FALSE)
+#grep("Pou",geneinfo$genesym)
 
 
-grep("Pou",geneinfo$genesym)
+
+
+###############################################################
+
+
+rs<-dbSendQuery(con, "select count(*) from genecorr")
+test_genecorr <- fetch(rs,n=-1)
+
+rs<-dbSendQuery(con, "select count(*) from geneinfo")
+test_geneinfo <- fetch(rs,n=-1)
+
+rs<-dbSendQuery(con, "select count(*) from geneexp")
+test_geneexp <- fetch(rs,n=-1)
+
+
+test_genecorr
+test_geneinfo
+test_geneexp
 

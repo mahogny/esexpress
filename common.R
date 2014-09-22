@@ -1,7 +1,3 @@
-#install.packages("RPostgreSQL")
-#install.packages("stringr")
-
-
 if(!(R.version$major=="3" & R.version$minor=="1.1")){
         cat("Wrong version of R\n")
         quit(save="no")
@@ -29,10 +25,10 @@ dbSendQuery(con,"SET search_path = public, esexpress;")
 
 
 expandarray <- function(x){
-  toret<-NA
-  try(function(){
-    toret<-strsplit(substr(x,2,nchar(x)-1),",")[[1]]
-  }, function(){
+  toret<-tryCatch({
+    strsplit(substr(x,2,nchar(x)-1),",")[[1]]
+  }, error=function(){
+    cat("error in conversion")
     cat(x)
   })
   toret
