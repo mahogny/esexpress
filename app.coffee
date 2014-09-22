@@ -116,23 +116,29 @@ view_gene_disp = (geneinfo) ->
   ##Find x-range
   maxx = d3.max (d3.values values), (arr)-> 
     d3.max arr, ((d)->d)
-  minx = -3
+  minx = -2 #3
   #maxx = 11
   x = d3.scale.linear()
     .domain([minx, maxx])   
     .range([0, width])
+  kde = kernelDensityEstimator(epanechnikovKernel(0.5), x.ticks(100))
 
   ##Create bins
   data={}
   for k in Object.keys(values)
-    data[k]=d3.layout.histogram()
-              .bins(x.ticks(30))(values[k])
+    data[k]=kde(values[k])
+    #    data[k]=d3.layout.histogram()
+    #              .range([minx,maxx])
+    #              .bins(x.ticks(30))(kde(values[k]))
+    #              .bins(x.ticks(30))(values[k])
 
   ##Compute y-range
-  miny=0
-  maxy=0
+  miny=0.0
+  maxy=0.0
   for k in Object.keys(values)
-    maxy=Math.max(maxy,d3.max data[k], (d)->d.y)
+    #maxy=Math.max(maxy,d3.max data[k], (d)->d.y)
+    maxy=Math.max(maxy,d3.max data[k], (d)->d[1])
+  #maxy=0.03
   y = d3.scale.linear()
     .domain([miny, maxy])
     .range([height, 0])
@@ -199,7 +205,6 @@ view_gene_disp = (geneinfo) ->
     table = form2.find("#corrlist")
     table.empty()
     maxloop = 1
-    #alert(JSON.stringify values)
     if (typeof values) == "undefined"
       row = $ "<tr>"
       row.append "(not computed)"
@@ -226,8 +231,10 @@ view_gene_disp = (geneinfo) ->
 
 oneline = (svg,x,y,data,color) ->
   line = d3.svg.line()
-     .x((d) -> x(d.x))
-     .y((d) -> y(d.y))
+     .x((d) -> x(d[0]))
+     .y((d) -> y(d[1]))
+     #.x((d) -> x(d.x)) #for histogram data
+     #.y((d) -> y(d.y))
   return svg.append("path")
     .datum(data)
     .attr("class","line")
@@ -426,3 +433,16 @@ $ ->
 
 
 
+
+kernelDensityEstimator = (kernel, x) ->
+  (sample) ->
+    x.map (x) ->
+      [x, d3.mean sample, ((v) -> kernel (x - v))]
+
+
+epanechnikovKernel = (scale) ->
+  return (u) ->
+    if Math.abs(u /= scale) <= 1
+      return 0.75 * (1 - u * u) / scale
+    else
+      return 0

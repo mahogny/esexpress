@@ -2,6 +2,12 @@
 #install.packages("stringr")
 
 
+if(!(R.version$major=="3" & R.version$minor=="1.1")){
+        cat("Wrong version of R\n")
+        quit(save="no")
+}
+
+
 .libPaths(c(.libPaths(),"/net/isilonP/public/rw/homes/w3_rst01/R/x86_64-redhat-linux-gnu-library/3.1"))
 .libPaths(c(.libPaths(),"/var/lib/wwwrun/R/x86_64-suse-linux-gnu-library/3.1"))
 
@@ -16,7 +22,8 @@ dbuser <- auth[3]
 dbpass <- auth[4]
 
 drv <- dbDriver("PostgreSQL")
-con <- dbConnect(drv, dbname=paste("postgres://",dbhost,"/",dbname,sep=""), user=dbuser, password=dbpass)
+#con <- dbConnect(drv, dbname=paste("postgres://",dbhost,"/",dbname,sep=""), user=dbuser, password=dbpass)
+con <- dbConnect(drv, host=dbhost, dbname=dbname, user=dbuser, password=dbpass)
 
 dbSendQuery(con,"SET search_path = public, esexpress;")
 
