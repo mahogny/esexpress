@@ -122,13 +122,21 @@ uploadcorr <- function(dataset, cnt){
 ## Pull out a subset for correlation
 #Reduce to around 5000 genes. it should be the ones with a few cells having some expr
 getexpressed <- function(ds){
-  foo <- apply(ds_ola_lif>50,1,function(x) length(which(x))>3)    #30 for 600 genes
+  foo <- apply(ds_ola_lif>20,1,function(x) length(which(x))>3)    #30 for 600 genes
   ds[which(foo),]
 }
 #red_ds_ola_2i <- getexpressed(ds_ola_2i)
 #nrow(red_ds_ola_2i)
 
-ncol(es_cnt)  ##check, 704???
+
+
+#check that all genes on basal list are there!  >20 & >3 is ok
+plugenes <- read.table("genelist_pluripotency.txt",stringsAsFactors = FALSE)[,1]
+plugenes[-(which(mapsymid(plugenes) %in% rownames(red_ds_ola_2i)))]
+
+
+
+#ncol(es_cnt)  ##check, 704???
 
 uploadcorr("es_lif",getexpressed(ds_ola_lif))
 uploadcorr("es_2i", getexpressed(ds_ola_2i))
@@ -181,4 +189,15 @@ test_geneexp <- fetch(rs,n=-1)
 test_genecorr
 test_geneinfo
 test_geneexp
+
+
+
+
+## diagram, axis
+## diagram, gauss kernel like ola
+## pou5f1 need to be included in corr calc
+#### check all the genes in the diff list?
+## upload other corr as well
+## 
+
 

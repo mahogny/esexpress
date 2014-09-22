@@ -124,7 +124,8 @@ view_gene_disp = (geneinfo) ->
   x = d3.scale.linear()
     .domain([minx, maxx])   
     .range([0, width])
-  kde = kernelDensityEstimator(epanechnikovKernel(0.5), x.ticks(100))
+  #kde = kernelDensityEstimator(epanechnikovKernel(0.5), x.ticks(100))
+  kde = kernelDensityEstimator(gaussianKernel(0.5), x.ticks(100))
 
   ##Create bins
   data={}
@@ -142,6 +143,7 @@ view_gene_disp = (geneinfo) ->
     #maxy=Math.max(maxy,d3.max data[k], (d)->d.y)
     maxy=Math.max(maxy,d3.max data[k], (d)->d[1])
   #maxy=0.03
+  #alert(JSON.stringify maxy)
   y = d3.scale.linear()
     .domain([miny, maxy])
     .range([height, 0])
@@ -149,6 +151,9 @@ view_gene_disp = (geneinfo) ->
   xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom")
+  yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
 
   svg = d3.select("#expressionhist")
   svg = svg
@@ -166,6 +171,22 @@ view_gene_disp = (geneinfo) ->
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
+#  svg.append("g")
+#    .attr("class", "y axis")
+#    .attr("transform", "translate(0," + height + ")")
+#    .call(yAxis);
+
+  svg.append("text")
+    .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
+    .style("text-anchor", "middle")
+    .text("Log normalized expression level");
+  svg.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left)
+    .attr("x",0 - (height / 2))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("Density (# cells)");
 
   ##Add legend
   elegend = (root.find("#countlegend")) 
@@ -449,3 +470,12 @@ epanechnikovKernel = (scale) ->
       return 0.75 * (1 - u * u) / scale
     else
       return 0
+
+gaussianKernel = (sigma) ->
+  thediv = 1.0/(sigma*Math.sqrt(2*Math.PI))
+  thediv2 = 1.0/(2*sigma*sigma)
+  #alert(thediv)
+  #alert(thediv2)
+  return (u) ->
+    return thediv*Math.exp(-u*u*thediv2)
+

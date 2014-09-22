@@ -51,6 +51,8 @@ time_getgeneinfo <- proc.time()[3]-time_getgeneinfo
 
 mapidsym <- function(n)
   merge(data.frame(geneid=n),geneidsym,all.x=TRUE)$genesym
+mapsymid <- function(n)
+  merge(data.frame(genesym=n),geneidsym,all.x=TRUE)$geneid
 
 ensureensembl <- function(genes)
   geneidsym$geneid[which(geneidsym$geneid %in% genes | geneidsym$genesym %in% genes)]
