@@ -14,6 +14,9 @@ thecol["sandberg_midblast"]   = "#00FF00"
 thecol["sandberg_lateblast"]  = "#0000FF"
 
 
+log2 = (val) ->
+  Math.log(val) / Math.LN2;
+
 ###########################################################################
 # Searching for genes
 ###########################################################################
@@ -107,7 +110,7 @@ view_gene_disp = (geneinfo) ->
   values={}
   for k in datasetlist
     values[k] = geneinfo["dataset"][k]["exp"]
-  values=assmap values, Math.log2
+  values=assmap values, log2
 
   margin = {top: 10, right: 30, bottom: 30, left: 30}
   width = 400 - margin.left - margin.right
