@@ -60,9 +60,8 @@
         <!-- ----------------------------- gene set comparison --------------------------------- -->
         <form class="form-inline" role="search" id="searchform"> 
             <div id="search-form" class="form-group">
-              <label for=""><small>Compare gene set</small></label>
-              <br/><a href="#" id="genelist_pluripotency">Add: Pluripotency genes</a>
-              <br/>
+              <label for=""><small>Compare gene set</small></label><br/>
+              <a href="#" id="genelist_pluripotency">Add: Pluripotency genes</a><br/>
               <div class="input-group">
               </div>
                 <textarea
@@ -213,7 +212,12 @@
           </table>
           <table width="100%">
             <tr>
-              <td id="genesetcorr1" align="left" valign="top">
+              <td align="left" valign="top">
+                <div id="genesetcorr1">
+                </div>
+                Dataset: 
+                <select id="genegenedataset" style="width: 150px;">
+                </select>
               </td>
               <td align="left" valign="top">
                 <div id="genesetcorr2">

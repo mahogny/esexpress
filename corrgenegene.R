@@ -20,14 +20,17 @@ if(!exists("dataset"))
 
 dbSendQuery(con, "CREATE TEMPORARY TABLE geneset (fromgene TEXT)")
 dbWriteTable(con,"geneset",data.frame(fromgene=genes, stringsAsFactors=FALSE),append=TRUE,row.names=FALSE)
-rs<-dbSendQuery(con, sprintf("select * from genecorr where fromgene in (select * from geneset), data='%s'",))
+rs<-dbSendQuery(con, sprintf("select * from genecorr where fromgene in (select * from geneset) AND dataset='%s'",dataset))
 dat <- fetch(rs,n=-1)
 dbSendQuery(con, "DROP TABLE geneset")
 
 
+if(nrow(dat)==0)
+  quit(save = "no")
+
 togenes <- expandarray(dat$togene[1])
 ind <- which(togenes %in% genes)
-mat <- matrix(nrow=0,ncol=length(ind))
+mat <- matrix(nrow=0,ncol=length(ind))   ############somewhere here it dies; likely related to dataset
 for(i in 1:nrow(dat)){
   mat<-rbind(mat,as.double(expandarray(dat$corr[i])[ind]))
 }
@@ -46,9 +49,7 @@ if(ncol(mat)>1){
     mat[i,i]<-0
   }
   
-#  my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
   my_palette <- colorRamps::matlab.like
-#(c("red", "yellow", "green"))(n = 299)
   
   heatmap.2(
     density.info = "none",

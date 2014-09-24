@@ -169,10 +169,6 @@ view_gene_disp = (geneinfo) ->
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
-#  svg.append("g")
-#    .attr("class", "y axis")
-#    .attr("transform", "translate(0,0)")
-#    .call(yAxis);
 
   svg.append("text")
     .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
@@ -273,8 +269,6 @@ assmap = (values, func) ->
     newvalues[k]=values[k].map func
   return newvalues
   
-
-
 onetd = (content) ->
   td = $ "<td class=\"corrtd\"/>"
   td.append content
@@ -288,7 +282,6 @@ kernelDensityEstimator = (kernel, x) ->
   (sample) ->
     x.map (x) ->
       [x, d3.mean sample, ((v) -> kernel (x - v))]
-
 
 epanechnikovKernel = (scale) ->
   return (u) ->
@@ -362,21 +355,34 @@ view_geneset_disp = (data) ->
 
   $("html, body").animate (scrollTop: form2.offset().top), "slow"
 
+
+  egenegeneds = form2.find("#genegenedataset")
+  for k in Object.keys(thecol)
+    egenegeneds.append makeoption k,k
+
+
   ############# gene-gene correlation map
-  setquery = getgeneset()
-  setquery.graphw=2000
-  setquery.dataset="es_lif" ####################################################### todo allow selection
-  query_url = "corrgenegene.php?q=#{JSON.stringify setquery}"
-  imglink = $ "<a>"
-  imglink.attr "href", query_url
-  img = $ "<img>"
-  setquery = getgeneset()
-  query_url = "corrgenegene.php?q=#{JSON.stringify setquery}"
-  img.attr src: query_url
-  img.attr width:  500
-  img.attr height: 500
-  imglink.append img
-  root.find("#genesetcorr1").append imglink
+  egenesetcorr1 = form2.find("#genesetcorr1")
+  updatecorr1 = () ->
+    setquery = getgeneset()  ########################### bug, keep track of geneset!
+    setquery.graphw=2000
+    setquery.dataset=egenesetcorr1.val()  #"es_lif" ####################################################### todo allow selection
+    query_url = "corrgenegene.php?q=#{JSON.stringify setquery}"
+    imglink = $ "<a>"
+    imglink.attr "href", query_url
+    img = $ "<img>"
+    setquery = getgeneset()
+    query_url = "corrgenegene.php?q=#{JSON.stringify setquery}"
+    img.attr src: query_url
+    img.attr width:  500
+    img.attr height: 500
+    imglink.append img
+    egenesetcorr1.empty()
+    egenesetcorr1.append imglink
+
+  updatecorr1()
+  egenegeneds.change () ->
+    updatecorr1()
 
   ############# gene-cell correlation map
   imglink = $ "<a>"
@@ -416,7 +422,7 @@ view_geneset_disp = (data) ->
         if thischeck.is(':checked')
           setquery.datasets.push(k)
       setquery.graphw=graphw
-      query_url = "corrgenecell.php?q=#{JSON.stringify setquery}"   #todo, use POST. and different query!
+      query_url = "corrgenecell.php?q=#{JSON.stringify setquery}"
       return query_url
       )()
 
