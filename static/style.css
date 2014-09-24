@@ -73,10 +73,18 @@ dl {
   border:1px solid black;
 }
 
-.x.axis line {
-  stroke: #000000;
+.axis {
+  shape-rendering: crispEdges;
 }
-.x.axis path {
-  display: none;
+
+.x.axis path, x.axis line {
+  stroke: #000000;
+  fill: none;
+}
+
+
+.y.axis path, .y.axis line {
+  stroke: #000000;
+  fill: none;
 }
 

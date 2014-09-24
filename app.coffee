@@ -124,8 +124,8 @@ view_gene_disp = (geneinfo) ->
   ##Find x-range
   maxx = d3.max (d3.values values), (arr)-> 
     d3.max arr, ((d)->d)
-  minx = -2 #3
-  #maxx = 11
+  minx = -2
+  maxx = Math.max maxx,5
   x = d3.scale.linear()
     .domain([minx, maxx])   
     .range([0, width])
@@ -136,19 +136,12 @@ view_gene_disp = (geneinfo) ->
   data={}
   for k in Object.keys(values)
     data[k]=kde(values[k])
-    #    data[k]=d3.layout.histogram()
-    #              .range([minx,maxx])
-    #              .bins(x.ticks(30))(kde(values[k]))
-    #              .bins(x.ticks(30))(values[k])
 
   ##Compute y-range
   miny=0.0
   maxy=0.0
   for k in Object.keys(values)
-    #maxy=Math.max(maxy,d3.max data[k], (d)->d.y)
     maxy=Math.max(maxy,d3.max data[k], (d)->d[1])
-  #maxy=0.03
-  #alert(JSON.stringify maxy)
   y = d3.scale.linear()
     .domain([miny, maxy])
     .range([height, 0])
@@ -178,7 +171,7 @@ view_gene_disp = (geneinfo) ->
     .call(xAxis);
 #  svg.append("g")
 #    .attr("class", "y axis")
-#    .attr("transform", "translate(0," + height + ")")
+#    .attr("transform", "translate(0,0)")
 #    .call(yAxis);
 
   svg.append("text")
@@ -637,14 +630,15 @@ view_diffexp2 = (dslist) ->
           .orient("left")
         svg.append("g")
           .attr("class", "x axis")
-          .attr("transform", "translate(0," + height + ")")
+          .attr("transform", "translate(0," + (height) + ")")
           .call(xAxis);
-#        svg.append("g")
-#          .attr("class", "y axis")
-#          .attr("transform", "translate(0," + height + ")")
-#          .call(yAxis);
+        svg.append("g")
+          .attr("transform", "translate(5,0)")
+          .attr("class", "y axis")
+          .call(yAxis);
         svg.append("text")
           .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
+          .attr("font-size","10px")
           .style("text-anchor", "middle")
           .text("Log mean (from)");
         svg.append("text")
@@ -652,6 +646,7 @@ view_diffexp2 = (dslist) ->
           .attr("y", 0 - margin.left)
           .attr("x",0 - (height / 2))
           .attr("dy", "1em")
+          .attr("font-size","10px")
           .style("text-anchor", "middle")
           .text("Log mean (to)");
 
@@ -665,7 +660,7 @@ view_diffexp2 = (dslist) ->
             .on("click",makeviewgenefunc(datasub[i].geneid))
             .append("text")
             .attr("x", x datasub[i].mean1)
-            .attr("y", y datasub[i].mean2)
+            .attr("y", (y datasub[i].mean2)-5)
             .style("font-weight","bold")
             .style("text-anchor","middle")
             .text(datasub[i].genesym)

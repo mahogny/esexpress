@@ -8,7 +8,7 @@ $ds2 = getdef($query, 'dataset2', '');
 
 echo "geneid,genesym,mean1,mean2,pvalue,padj\n";
 
-$ps=pg_prepare($db, 'getgene',"SELECT DISTINCT * FROM diffexp NATURAL JOIN (SELECT geneid,genesym FROM geneinfo) as bar WHERE dataset1=$1 AND dataset2=$2");
+$ps=pg_prepare($db, 'getgene',"SELECT DISTINCT * FROM diffexp NATURAL JOIN (SELECT geneid,genesym FROM geneinfo) as bar WHERE dataset1=$1 AND dataset2=$2 ORDER BY padj");
 $rs=pg_execute($db, 'getgene', array($ds1,$ds2));
 $results=array();
 while($line=pg_fetch_array($rs,null,PGSQL_ASSOC)){
