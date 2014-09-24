@@ -6,3 +6,5 @@ install.packages("stringr")
 install.packages("gplots")
 install.packages("MASS")
 
+
+#biocLite("DESeq")

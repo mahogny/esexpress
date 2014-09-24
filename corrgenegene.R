@@ -1,6 +1,7 @@
 source("common.R")
 library(gplots)
 
+
 if(!exists("genes")){
    genes <- c(
      "ENSMUSG00000000126",
@@ -13,11 +14,13 @@ if(!exists("genes")){
 genes <- ensureensembl(genes)
 if(!exists("graphw"))
   graphw<-500
+if(!exists("dataset"))
+  dataset<-"es_lif"
 
 
 dbSendQuery(con, "CREATE TEMPORARY TABLE geneset (fromgene TEXT)")
 dbWriteTable(con,"geneset",data.frame(fromgene=genes, stringsAsFactors=FALSE),append=TRUE,row.names=FALSE)
-rs<-dbSendQuery(con, "select * from genecorr where fromgene in (select * from geneset)")
+rs<-dbSendQuery(con, sprintf("select * from genecorr where fromgene in (select * from geneset), data='%s'",))
 dat <- fetch(rs,n=-1)
 dbSendQuery(con, "DROP TABLE geneset")
 
@@ -43,7 +46,9 @@ if(ncol(mat)>1){
     mat[i,i]<-0
   }
   
-  my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
+#  my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
+  my_palette <- colorRamps::matlab.like
+#(c("red", "yellow", "green"))(n = 299)
   
   heatmap.2(
     density.info = "none",

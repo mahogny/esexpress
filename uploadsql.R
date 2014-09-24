@@ -1,3 +1,5 @@
+
+### todo use esexpress schema
 library("DESeq2")
 source("common.R")
 
@@ -32,7 +34,8 @@ cnt_es <- cnt_es[-grep("_",rownames(cnt_es)),]
 
 #remove dead cells, normalize
 removedcells <- read.table("../../data/removed_cells.txt",header=FALSE,sep=" ",stringsAsFactors=FALSE)[,2]
-cnt_es <- cnt_es[,which(colnames(cnt_es) %in% removedcells)]
+cnt_es <- cnt_es[,-(which(colnames(cnt_es) %in% removedcells))]
+cnt_es_notnorm <- cnt_es
 cnt_es <- normalizeDeseq(cnt_es)
 
 
@@ -199,5 +202,83 @@ test_geneexp
 #### check all the genes in the diff list?
 ## upload other corr as well
 ## 
+
+
+library("DESeq")
+
+
+cellstates <- read.csv("../../data/cell_states.txt",sep=" ",stringsAsFactors=FALSE)[,c(2,3)]
+
+#conditions <- cellstates[,2]
+#colnames(cnt_es) == conditions
+#ncol(cnt_es)
+#colnames(conditions)
+
+# 2C 2i
+# (2C + 2i) vs nanog*
+# a2i + (2*)
+# vs nanog
+# nanog_hi & lov
+# nanog_hi & me (all)
+
+
+conditions <- merge(data.frame(cell=colnames(cnt_es),stringsAsFactors = FALSE), cellstates)$state
+
+
+compare2 <- function(cnt_es, seta, setb, conditions, ds1name, ds2name){
+  
+  for(x in seta)
+    conditions[conditions==x] <- "SETA"
+  for(x in setb)
+    conditions[conditions==x] <- "SETB"
+  #print(conditions)
+  cds <- newCountDataSet(cnt_es, conditions)
+  cds <- estimateSizeFactors( cds )
+  cds <- estimateDispersions( cds )
+  out <- nbinomTest(cds, "SETA", "SETB")
+  out <- out[order(out$padj),]
+  out2 <- out[out$padj<0.05,]
+  
+  ds1name <- "foo1"
+  ds2name <- "foo2"
+  out2 <- cbind(ds1name, ds2name, out2[,c(1,3,4,7,8)])
+  #out <- res_2i_serum
+  colnames(out2) <- c("dataset1","dataset2","geneid","mean1","mean2","pvalue","padj")
+  
+
+  out2[1:10,]
+  
+  
+  dbGetQuery(con,sprintf("delete from diffexp WHERE dataset1='%s' AND dataset2='%s';",ds1name,ds2name))
+  dbWriteTable(con,"diffexp",out2,append=TRUE,row.names=FALSE)
+#  colnames(dbReadTable(con,"diffexp"))
+  
+#  write.table(out2, "test.csv", row.names = FALSE, sep=",")
+    
+# seta<-c("2i")
+ #setb<-c("2C")
+  
+  
+  
+}
+res_2i_serum <- compare2(cnt_es, c("2i"),c("2C"), conditions)
+res_2i_serum[1:10,]
+res_2i_serum$pvalue
+#res_2i_serum[order(res_2i_serum$padj),][1:10,]
+
+uploadde <- function(out){
+  out[,c(1,3,4,7,8)]  
+  
+}
+
+#DESeqDataSetFromMatrix(cnt_es, conditions)
+#cds <- newCountDataSet(cnt_es, conditions)
+#cds <- estimateSizeFactors( cds )
+#cds <- estimateDispersions( cds )
+
+res_2i_serum <- nbinomTest( cds, "2i", "2C" )
+#res_2i_a2i <- nbinomTest( cds, "2i", "a2i" )
+
+#TODO rename conditions to follow dataset names
 
 

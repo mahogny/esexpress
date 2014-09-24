@@ -37,7 +37,7 @@
 
         <!-- ----------------------------- search for genes --------------------------------- -->
         <form class="form-inline" role="search" id="searchform"> 
-              <label for=""><small>Search</small></label>
+              <label for=""><small>View one gene</small></label>
               <div class="input-group">
                 <input type="text"
                        class="form-control"
@@ -60,7 +60,9 @@
         <!-- ----------------------------- gene set comparison --------------------------------- -->
         <form class="form-inline" role="search" id="searchform"> 
             <div id="search-form" class="form-group">
-              <label for=""><small>Gene set</small></label>
+              <label for=""><small>Compare gene set</small></label>
+              <br/><a href="#" id="genelist_pluripotency">Add: Pluripotency genes</a>
+              <br/>
               <div class="input-group">
               </div>
                 <textarea
@@ -78,16 +80,23 @@
                     Clear
                 </button>
             </div>
-            
-            <br/>
-            <br/>
-            <a href="#" id="genelist_pluripotency">Add: Pluripotency genes</a>
-            <br/>
-            <br/>
-            
         </form>  
+        <br/>
 
 
+        <!-- ----------------------------- differential expression --------------------------------- -->
+        <form class="form-inline" role="search"> 
+            <div id="search-form" class="form-group">
+              <label for=""><small>Differential expression</small></label>
+              <div class="input-group">
+              </div>
+                <button type="button"
+                        class="btn btn-primary"
+                        id="view-diffexp">
+                    New comparison
+                </button>
+            </div>
+        </form>  
 
 
 
@@ -120,107 +129,156 @@
     
     <script src="static/app.js" type="text/javascript"></script>
 
-
-
-<div class="hide">
-  <div id="genepanel">
-    <div style = "margin:10px; border:1px solid black; padding-left:10px; padding-right:10px; padding-top:0px; background-color:#FAFAFF;">
-      <table width="100%" style="margin:0px; padding:0px; spacing:0px;">
-      <tr><td>
-        <h1>GENESYM <small>GENEID</small></h1>
-      </td><td align="right">
-        <button type="button" class="btn btn-primary" id="genepanel-toset">Add to gene set</button>
-        <button type="button" class="btn btn-primary" id="genepanel-close">Close</button>
-      </td></tr></table>
-
-      <table width="100%">
-        <tr><td width="400px" valign="top">
-          <svg id="expressionhist"/>
-        </td><td id="countlegend" align="left" valign="top">
-        </td><td align="right">
-          <table>
+  
+    
+    <div class="hide">
+      <div id="genepanel">
+        <div style = "margin:10px; border:1px solid black; padding-left:10px; padding-right:10px; padding-top:0px; background-color:#FAFAFF;">
+          <table width="100%" style="margin:0px; padding:0px; spacing:0px;">
+          <tr><td>
+            <h1>GENESYM <small>GENEID</small></h1>
+          </td><td align="right">
+            <button type="button" class="btn btn-primary" id="genepanel-toset">Add to gene set</button>
+            <button type="button" class="btn btn-primary" id="genepanel-close">Close</button>
+          </td></tr></table>
+    
+          <table width="100%">
+            <tr><td width="400px" valign="top">
+              <svg id="expressionhist"/>
+            </td><td id="countlegend" align="left" valign="top">
+            </td><td align="right">
+              <table>
+                <tr>
+                  <th>Gene</th>
+                  <th>Correlation</th>
+                </tr>
+                <tbody id="corrlist">
+                </tbody>
+              </table>
+              <br/>
+              <table>
+                <tr>
+                  <td>
+                    Dataset: 
+                  </td>
+                  <td>
+                    <select id="corrdataset" style="width: 150px;"></select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    Show: 
+                  </td>
+                  <td>
+                    <select id="corrshownum" style="width: 150px;">
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                      <option value="200">200</option>
+                      <option value="500">500</option>
+                      <option value="1000">1000</option>
+                    </select>
+                  </td>
+                </tr>
+              </table>
+            </td></tr>
+          </table>
+          <small>
+            <a id="linkpubmed">Pubmed</a> | 
+            <a id="linkensembl">ENSEMBL</a> | 
+            <a id="linkgenecards">Genecards</a>
+          </small>
+    
+        </div>
+      </div>
+    
+    
+      <div id="genesetpanel">
+        <div style = "margin:10px; border:1px solid black; padding-left:10px; padding-right:10px; padding-top:0px; background-color:#FAFFFA;">
+          <table width="100%">
+            <tr><td>
+              <h1>Geneset</h1>
+            </td><td align="right">
+              <button type="button" class="btn btn-primary" id="genesetpanel-close">Close</button>
+            </td></tr>
+          </table>
+    
+          <table width="100%">
+            <tr>
+              <td valign="top" id="genesetlist">
+              </td>
+            </tr>
+          </table>
+          <table width="100%">
+            <tr>
+              <td id="genesetcorr1" align="left" valign="top">
+              </td>
+              <td align="left" valign="top">
+                <div id="genesetcorr2">
+                </div>
+                <div id="genesetcorr2legend" style="margin-left:100px;">
+                </div>
+                <br/>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    
+    
+    
+    
+    
+      <div id="diffexppanel">
+        <div style = "margin:10px; border:1px solid black; padding-left:10px; padding-right:10px; padding-top:0px; background-color:#FAFFFA;">
+          <table width="100%">
+            <tr><td>
+              <h1>Differential expression</h1>
+            </td><td align="right">
+              <button type="button" class="btn btn-primary" id="diffexppanel-close">Close</button>
+            </td></tr>
+          </table>
+    
+          From:  <select id="ds1" style="width: 150px;"></select>
+          To:  <select id="ds2" style="width: 150px;"/></select>
+          Show:                 
+            <select id="diffexpshownum" style="width: 150px;">
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
+              <option value="500">500</option>
+              <option value="1000">1000</option>
+            </select>
+    
+          <svg id="diffexpgraph">
+          </svg>
+          
+          <table width="100%">
             <tr>
               <th>Gene</th>
-              <th>Correlation</th>
+              <th>Log Mean<sub>from</sub></th>
+              <th>Log Mean<sub>to</sub></th>
+              <th>Log fold change</th>
+              <th>P-value</th>
+              <th>Adjusted P-value</th>
             </tr>
-            <tbody id="corrlist">
+            <tbody id="diffexptable">
             </tbody>
           </table>
-          <br/>
-          <table>
-            <tr>
-              <td>
-                Dataset: 
-              </td>
-              <td>
-                <select id="corrdataset" style="width: 150px;"></select>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Show: 
-              </td>
-              <td>
-                <select id="corrshownum" style="width: 150px;">
-                  <option value="5">5</option>
-                  <option value="10">10</option>
-                  <option value="20">20</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                  <option value="200">200</option>
-                  <option value="500">500</option>
-                  <option value="1000">1000</option>
-                </select>
-              </td>
-            </tr>
-          </table>
-        </td></tr>
-      </table>
-      <small>
-        <a id="linkpubmed">Pubmed</a> | 
-        <a id="linkensembl">ENSEMBL</a> | 
-        <a id="linkgenecards">Genecards</a>
-      </small>
-
+          <small>
+            <a id="linkcsv">CSV</a>
+          </small>
+        </div>
+      </div>
+    
+    
+    
     </div>
-  </div>
-
-
-  <div id="genesetpanel">
-    <div style = "margin:10px; border:1px solid black; padding-left:10px; padding-right:10px; padding-top:0px; background-color:#FAFFFA;">
-      <table width="100%">
-        <tr><td>
-          <h1>Geneset</h1>
-        </td><td align="right">
-          <button type="button" class="btn btn-primary" id="genesetpanel-close">Close</button>
-        </td></tr>
-      </table>
-
-      <table width="100%">
-        <tr>
-          <td valign="top" id="genesetlist">
-          </td>
-        </tr>
-      </table>
-      <table width="100%">
-        <tr>
-          <td id="genesetcorr1" align="left" valign="top">
-          </td>
-          <td align="left" valign="top">
-            <div id="genesetcorr2">
-            </div>
-            <div id="genesetcorr2legend" style="margin-left:100px;">
-            </div>
-            <br/>
-          </td>
-        </tr>
-      </table>
-    </div>
-  </div>
-
-</div>
-
-
 
   </body>
 

@@ -31,7 +31,10 @@
   pclose($handle);
 
 #  header('Content-Type: application/json; ');
-#  header("Cache-Control: no-cache, must-revalidate"); 
+  header("Cache-Control: no-cache, must-revalidate"); 
   echo $ret;
+  if(strlen($ret)==0){
+    echo "error running ".$cmd;
+  }
 
 ?>

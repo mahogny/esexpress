@@ -41,5 +41,20 @@ CREATE TABLE esexpress.genecorrdiff (
 	fromgene   TEXT,
 	corrdiff   DOUBLE[] NOT NULL,
 	PRIMARY KEY (datasetA, datasetB, fromgene);
-)
+);
+
+
+
+
+CREATE TABLE esexpress.diffexp (
+	dataset1   TEXT,
+	dataset2   TEXT,
+	geneid     TEXT,
+
+	mean1      REAL NOT NULL,
+	mean2      REAL NOT NULL,
+	pvalue     REAL NOT NULL,
+	padj       REAL NOT NULL,
+	PRIMARY KEY (dataset1, dataset2, geneid)
+);
 

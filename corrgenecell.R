@@ -80,7 +80,10 @@ bitmap("|cat",type="pngalpha",width=graphw,height=graphw,units="px")
 
 cor(t(totmatrix))
 
-my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
+#my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
+my_palette <- colorRamps::matlab.like
+
+
 rowcol <- rep("black",nrow(totmatrix))
 rowcol[which(totds == "es_lif")] <- "#8B0000"
 rowcol[which(totds == "es_a2i")] <- "#EEAD0E"

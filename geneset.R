@@ -19,22 +19,25 @@ if(!exists("genes")){
 #Convert to ensemblid
 genes <- geneidsym$geneid[which(geneidsym$geneid %in% genes | geneidsym$genesym %in% genes)]
 
-dbSendQuery(con, "CREATE TEMPORARY TABLE geneset (fromgene TEXT);")
+#dbSendQuery(con, "CREATE TEMPORARY TABLE geneset (fromgene TEXT);")
 
-dbWriteTable(con,"geneset",data.frame(fromgene=genes),append=TRUE,row.names=FALSE)
-rs<-dbSendQuery(con, "select * from genecorr where fromgene in (select * from geneset);")
-dat <- fetch(rs,n=-1)
+#dbWriteTable(con,"geneset",data.frame(fromgene=genes),append=TRUE,row.names=FALSE)
+#rs<-dbSendQuery(con, "select * from genecorr where fromgene in (select * from geneset);")
+#dat <- fetch(rs,n=-1)
 
 
-togenes <- expandarray(dat$togene[1])
-ind <- which(togenes %in% genes)
-mat <- matrix(nrow=0,ncol=length(ind))
-if(nrow(dat)>0)
-  for(i in 1:nrow(dat))
-    mat<-rbind(mat,as.double(expandarray(dat$corr[i])[ind]))
-dbSendQuery(con, "DROP TABLE geneset")
-colnames(mat)<-mapidsym(togenes[ind])
-rownames(mat)<-mapidsym(togenes[ind])   #was genes
+#togenes <- expandarray(dat$togene[1])
+#ind <- which(togenes %in% genes)
+# mat <- matrix(nrow=0,ncol=length(ind))
+# if(nrow(dat)>0)
+#   for(i in 1:nrow(dat))
+#     mat<-rbind(mat,as.double(expandarray(dat$corr[i])[ind]))
+# dbSendQuery(con, "DROP TABLE geneset")
+# 
+# 
+# colnames(mat)<-mapidsym(togenes[ind])
+# rownames(mat)<-mapidsym(togenes[ind])   #was genes
+
 
 
 #rs<-dbSendQuery(con, "select * from geneinfo NATURAL JOIN geneset;")
@@ -42,7 +45,7 @@ rownames(mat)<-mapidsym(togenes[ind])   #was genes
 
 cat("{")
 cat("\"geneset\":[")
-tab<-cbind(togenes[ind],mapidsym(togenes[ind]))
+#tab<-cbind(togenes[ind],mapidsym(togenes[ind]))
 
 ginfo <- data.frame(geneid=genes, genesym=mapidsym(genes),stringsAsFactors = FALSE)
 
@@ -62,7 +65,6 @@ if(nrow(ginfo)>0)
   }
 cat("]")
 cat("}")
-
 
 
 
