@@ -4,18 +4,12 @@
 
 include "common.php";
 
-
-#then here, also query for the most correlated genes and slap the two together
-#optionally, add a flag to geneinfo to include this or not
-
-
-
+$query = json_decode(getdef($_GET,'q','{}'),TRUE);
+$geneid = filteralpha(getdef($query, 'gene', ''));
 
 
 ### Query database for expression counts, for all datasets
 $time_getgene = microtime();
-$query = json_decode(getdef($_GET,'q','{}'),TRUE);
-$geneid = getdef($query, 'gene', '');
 $ps=pg_prepare($db, 'getgene','SELECT * FROM geneexp WHERE fromgene=$1');
 $rs=pg_execute($db, 'getgene', array($geneid));
 $resultsexp=array();

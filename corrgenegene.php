@@ -4,14 +4,12 @@
 
   $query = json_decode(getdef($_GET,'q','{}'),TRUE);
   $geneid = getdef($query, 'geneset', array("ENSMUSG00000000126","ENSMUSG00000000028"));
-  $graphw = getdef($query, 'graphw', 500);
-  $dataset = getdef($query, 'dataset', 'es_lif');
-
-#freaking dangerous command!######## TODO clean
+  $graphw = filteralpha(getdef($query, 'graphw', 500));
+  $dataset = filteralpha(getdef($query, 'dataset', 'es_lif'));
 
   $cmd = "echo 'genes <- c();";
   foreach($geneid as $s){
-    $cmd=$cmd . "genes <- c(genes,\"".$s."\");";
+    $cmd=$cmd . "genes <- c(genes,\"" . filteralpha($s) . "\");";
   }
   $cmd = $cmd . "graphw<-" . $graphw . ";";
   $cmd = $cmd . "dataset<-\"" . $dataset . "\";";

@@ -5,18 +5,13 @@
   $query = json_decode(getdef($_GET,'q','{}'),TRUE);
   $geneid = getdef($query, 'geneset', array("ENSMUSG00000000126","ENSMUSG00000000028"));
 
-#freaking dangerous command!######## TODO clean
-
   $cmd = "echo 'genes <- c();";
 
   foreach($geneid as $s){
-    $cmd=$cmd . "genes <- c(genes,\"".$s."\");";
+    $cmd=$cmd . "genes <- c(genes,\"".filteralpha($s)."\");";
   }
   
   $cmd = $cmd . "source(\"geneset.R\")' | /usr/bin/R --vanilla --slave";
-
-  #echo $cmd;
-  #exit();
 
   $handle = popen($cmd, "r");
   $ret = "";
@@ -30,11 +25,12 @@
   while(true);
   pclose($handle);
 
-#  header('Content-Type: application/json; ');
   header("Cache-Control: no-cache, must-revalidate"); 
-  echo $ret;
   if(strlen($ret)==0){
-    echo "error running ".$cmd;
+    echo "error running " . $cmd;
+  } else {
+    header('Content-Type: application/json; ');
+    echo $ret;
   }
 
 ?>

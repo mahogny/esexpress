@@ -42,7 +42,7 @@ function readbtable($tfile, $genelist, $numgenes)
 	}
 
 
-###############
+###############################################################################
 # take comma-list to array, double
 function splitcomma($x){
   $x = substr($x,1,strlen($x)-2);
@@ -50,5 +50,10 @@ function splitcomma($x){
 	return $x;
 }
 
+###############################################################################
+# Keep only alphanumeric symbols
+function filteralpha($s){
+  return preg_replace("/[a-zA-Z0-9+]/","", $s);
+}
 
 ?>

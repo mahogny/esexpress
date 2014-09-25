@@ -3,8 +3,8 @@ include "common.php";
 header('Content-Type: application/json; ');
 
 $query = json_decode(getdef($_GET,'q','{}'),TRUE);
-$ds1 = getdef($query, 'dataset1', '');
-$ds2 = getdef($query, 'dataset2', '');
+$ds1 = filteralpha(getdef($query, 'dataset1', ''));
+$ds2 = filteralpha(getdef($query, 'dataset2', ''));
 
 echo "geneid,genesym,mean1,mean2,pvalue,padj\n";
 
