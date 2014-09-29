@@ -142,7 +142,7 @@ plugenes[-(which(mapsymid(plugenes) %in% rownames(red_ds_ola_2i)))]
 #ncol(es_cnt)  ##check, 704???
 
 uploadcorr("es_lif",getexpressed(ds_ola_lif))
-uploadcorr("es_2i", getexpressed(ds_ola_2i))
+uploadcorr("es_2i", getexpressed(ds_ola_2i))   #did it die here already?
 uploadcorr("es_a2i",getexpressed(ds_ola_a2i))
 uploadcorr("sandberg_earlyblast",getexpressed(ds_s_eblast))
 uploadcorr("sandberg_midblast",  getexpressed(ds_s_mblast))
@@ -151,6 +151,8 @@ uploadcorr("sandberg_lateblast", getexpressed(ds_s_lblast))
 #uploadcorr("es_lif",ds_ola_lif)
 
 
+rs<-dbSendQuery(con, "select distinct dataset from genecorr")
+fetch(rs,n=-1)
 
 
 ####################################################################################
@@ -258,6 +260,10 @@ compare2(cnt_es, "a2i", set_nanog,        conditions, "es_a2i",    "es_nanog")
 compare2(cnt_es, "Nanog_hi", "Nanog_med", conditions, "Nanog_hi",  "Nanog_med")
 compare2(cnt_es, "Nanog_hi", "Nanog_lo",  conditions, "Nanog_hi",  "Nanog_lo")
 compare2(cnt_es, "Nanog_med", "Nanog_lo", conditions, "Nanog_med", "Nanog_lo")
+
+#rs<-dbSendQuery(con, "select distinct dataset1,dataset2 from diffexp")
+#fetch(rs,n=-1)
+
 
 # 2C 2i
 # (2C + 2i) vs nanog*

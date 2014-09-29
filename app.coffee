@@ -313,7 +313,7 @@ add_genelist = (genelist) ->
 onlyUnique = (value,index,self) ->
   (self.indexOf value) == index
 
-getgeneset = () ->
+getleftgeneset = () ->
   v = ($ "#genesetlist").val()
   v = (v.split "\n").join " "
   v = (v.split "\r").join " "
@@ -325,7 +325,7 @@ getgeneset = () ->
     geneset: v
 
 view_geneset = () ->
-  setquery = getgeneset()
+  setquery = getleftgeneset()
   if setquery.geneset.length<2 || setquery.geneset.length>50
     alert("Need to select more than one gene, and at the very most 50")
   else
@@ -356,6 +356,13 @@ view_geneset_disp = (data) ->
   $("html, body").animate (scrollTop: form2.offset().top), "slow"
 
 
+  getthisgeneset = () ->
+    q = geneset: []
+    for k in data
+      q.push k.geneid
+    alert (JSON.stringify q)
+    return q
+
   egenegeneds = form2.find("#genegenedataset")
   for k in Object.keys(thecol)
     egenegeneds.append makeoption k,k
@@ -364,14 +371,14 @@ view_geneset_disp = (data) ->
   ############# gene-gene correlation map
   egenesetcorr1 = form2.find("#genesetcorr1")
   updatecorr1 = () ->
-    setquery = getgeneset()  ########################### bug, keep track of geneset!
+    setquery = getthisgeneset() 
     setquery.graphw=2000
-    setquery.dataset=egenesetcorr1.val()  #"es_lif" ####################################################### todo allow selection
+    setquery.dataset=egenesetcorr1.val() 
     query_url = "corrgenegene.php?q=#{JSON.stringify setquery}"
     imglink = $ "<a>"
     imglink.attr "href", query_url
     img = $ "<img>"
-    setquery = getgeneset()
+    setquery = getthisgeneset()
     query_url = "corrgenegene.php?q=#{JSON.stringify setquery}"
     img.attr src: query_url
     img.attr width:  500
@@ -414,7 +421,7 @@ view_geneset_disp = (data) ->
   get_genecorr_queryurl = (()->
     thisimg = img
     thischecksid=echecksid
-    setquery = getgeneset()
+    setquery = getthisgeneset()
     return (graphw)->
       setquery.datasets = []
       for k in Object.keys(thischecksid)
@@ -430,7 +437,7 @@ view_geneset_disp = (data) ->
     thisimg = img
     thisimglink = imglink
     thischecksid=echecksid
-    setquery = getgeneset()
+    setquery = getthisgeneset()
     return ()->
       thisimglink.attr href: get_genecorr_queryurl(2000)
       thisimg.attr src: get_genecorr_queryurl(500)
