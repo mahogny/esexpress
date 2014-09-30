@@ -59,13 +59,13 @@ CREATE TABLE esexpress.diffexp (
 );
 
 
-CREATE TABLE esexpress.dm (
+CREATE TABLE esexpress.godm (
 	dataset1   TEXT,
 	dataset2   TEXT,
 	goid       TEXT,
 
-	mean1      REAL NOT NULL,
-	something     REAL NOT NULL,
+	pvalue     REAL NOT NULL,
+	tscore     REAL NOT NULL,
 	PRIMARY KEY (dataset1, dataset2, goid)
 );
 
@@ -75,6 +75,14 @@ CREATE TABLE esexpress.goinfo (
 	goname     TEXT,
         godef      TEXT,
 	PRIMARY KEY (goid)
+);
+
+
+CREATE TABLE esexpress.genedm (
+	dataset      TEXT,
+	geneid       TEXT,
+	genedm       TEXT,
+	PRIMARY KEY (dataset,geneid)
 );
 
 

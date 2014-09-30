@@ -7,16 +7,15 @@ include "common.php";
 $query = json_decode(getdef($_GET,'q','{}'),TRUE);
 $geneid = filteralpha(getdef($query, 'gene', ''));
 
-
 ### Query database for expression counts, for all datasets
 $time_getgene = microtime();
 $ps=pg_prepare($db, 'getgene','SELECT * FROM geneexp WHERE fromgene=$1');
 $rs=pg_execute($db, 'getgene', array($geneid));
 $resultsexp=array();
 while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
-        {
-        $resultsexp[$line['dataset']]=array('fromcell' => splitcomma($line['fromcell']), 'exp' => splitcomma($line['exp']));
-        }
+  {
+  $resultsexp[$line['dataset']]=array('fromcell' => splitcomma($line['fromcell']), 'exp' => splitcomma($line['exp']));
+  }
 pg_free_result($rs);
 $time_getgene = microtime()-$time_getgene;
 
@@ -30,11 +29,27 @@ $time_getgenei = microtime();
 $ps=pg_prepare($db, 'getgenei','SELECT * FROM geneinfo WHERE geneid=$1 LIMIT 1');
 $rs=pg_execute($db, 'getgenei', array($geneid));
 while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
-        {
-        $results['genesym']=$line['genesym'];
-        }
+  {
+  $results['genesym']=$line['genesym'];
+  }
 pg_free_result($rs);
 $time_getgenei = microtime()-$time_getgenei;
+
+
+
+### Query database for DM
+$time_getgenedm = microtime();
+$ps=pg_prepare($db, 'getgenedm','SELECT * FROM esexpress.genedm WHERE geneid=$1');
+$rs=pg_execute($db, 'getgenedm', array($geneid));
+$resultsdm=array();
+while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
+  {
+  $resultsdm[$line['dataset']]=$line['genedm'];
+  }
+$results['genedm']=$resultsdm;
+pg_free_result($rs);
+$time_getgenedm = microtime()-$time_getgenedm;
+
 
 
 ### Query database for a map ensemblid -> genesym
@@ -77,6 +92,7 @@ $time_getcorr = microtime() - $time_getcorr;
 $results['time_getgene']=$time_getgene;
 $results['time_getgenei']=$time_getgenei;
 $results['time_getcorr']=$time_getcorr;
+$results['time_getgenedm']=$time_getgenedm;
 
 
 

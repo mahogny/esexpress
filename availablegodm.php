@@ -1,7 +1,7 @@
 <?php
 include "common.php";
 
-$ps=pg_prepare($db, 'getgene',"SELECT DISTINCT dataset1,dataset2 FROM diffexp");
+$ps=pg_prepare($db, 'getgene',"SELECT DISTINCT dataset1,dataset2 FROM godm");
 $rs=pg_execute($db, 'getgene', array());
 $results=array();
 while($line=pg_fetch_array($rs,null,PGSQL_ASSOC)){
@@ -19,3 +19,4 @@ echo json_encode($results);
 
 include "end.php";
 ?>
+  

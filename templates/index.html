@@ -20,7 +20,10 @@
 
       <div class="landing">
         <p>This is a database for querying gene expression in mouse ES cells
-        which accompanies the publication Title <i>Author et al</i> Journal
+        which accompanies the publication 
+        <a id="paperlink">
+          Title <i>Author et al</i> Journal
+        </a>
         <b>issue</b></p>
 
         <p>
@@ -30,94 +33,121 @@
           Correlation is according to Spearman.
         </p>
         </br>
-      </div>
+        
+         
+        <center id="topmenu" class="hideclass"><table><tr><td><center>
+          <button type="button"
+                  class="btn btn-primary"
+                  id="openfloat-geneexp">
+            Expression of GOI
+          </button>
+          
+          <button type="button" 
+                  class="btn btn-primary"
+                  id="openfloat-genecorrone">
+            Correlation to GOI
+          </button>
+  
+          <button type="button" 
+                  class="btn btn-primary"
+                  id="openfloat-genecorrmany">
+            Correlation matrix
+          </button>
+  
+          <button type="button" 
+                  class="btn btn-primary"
+                  id="openfloat-cellcorr">
+            Cells clustering
+          </button>
+  
+          <button type="button" 
+                  class="btn btn-primary"
+                  id="openfloat-download">
+            Download
+          </button>
+
+        </center></td></tr><tr><td><center>
+  
+          <button type="button" 
+                  class="btn btn-primary"
+                  id="view-gonoise">
+            Noise of GO categories
+          </button>
+  
+          <button type="button" 
+                  class="btn btn-primary"
+                  id="view-diffexp">
+            Differential expression
+          </button>
 
 
-      <table width="100%"><tr><td valign="top" width="200px">
+        </center></td></tr></table></center>        
 
-        <!-- ----------------------------- search for genes --------------------------------- -->
-        <form class="form-inline" role="search" id="searchform"> 
-              <label for=""><small>View one gene</small></label>
-              <div class="input-group">
-                <input type="text"
-                       class="form-control"
-                       placeholder="Gene symbol or ENSEMBL ID"
-                       id="search"/>
-        </form>
-
-        <div class="row browse hide">
-          <form id="search-bar" class="form-inline" role="search">
+        <div id="float-pickonegene" class="hideclass hoveringdiv">
+          <form class="form-inline" role="search" id="searchform"> 
+            <label for=""><small>Enter gene name:</small></label>
+            <div class="input-group">
+              <input type="text"
+                     class="form-control"
+                     placeholder="Gene symbol or ENSEMBL ID"
+                     id="search"/>
+            </div>
           </form>
+          <div id="searchresult" style="margin-left: 10px;">
+          </div>
         </div>
 
-        <div id="searchresult" style="margin-left: 10px;">
+
+
+        <div id="float-pickgeneset" class="hideclass hoveringdiv">
+          <div id="search-form" class="form-group">
+            <label for=""><small>Enter list of genes</small></label><br/>
+            <textarea
+                   class="form-control"
+                   placeholder="Gene symbols or ENSEMBL IDs"
+                   id="genesetlist" rows="10"></textarea>
+            <button type="button"
+                    class="btn btn-primary"
+                    id="view-geneset">
+                Compare
+            </button>
+            <button type="button"
+                    class="btn btn-primary"
+                    id="reset-geneset">
+                Clear
+            </button>
+            <a href="#" id="genelist_pluripotency">Add: Pluripotency genes</a><br/>
+          </div>
         </div>
-        <br/>
 
 
+        <div id="float-download" class="hideclass hoveringdiv">
+          <label for=""><small>Datasets available:</small></label><br/>
+          Count tables (CSV)
+          <br/>
+          Noise of GO (CSV)
+          </ul>
+        </div>
+
+      </div>
+        
+        
+        
 
 
-        <!-- ----------------------------- gene set comparison --------------------------------- -->
-        <form class="form-inline" role="search" id="searchform"> 
-            <div id="search-form" class="form-group">
-              <label for=""><small>Compare gene set</small></label><br/>
-              <a href="#" id="genelist_pluripotency">Add: Pluripotency genes</a><br/>
-              <div class="input-group">
-              </div>
-                <textarea
-                       class="form-control"
-                       placeholder="Gene symbols or ENSEMBL IDs"
-                       id="genesetlist" rows="10"></textarea>
-                <button type="button"
-                        class="btn btn-primary"
-                        id="view-geneset">
-                    Compare
-                </button>
-                <button type="button"
-                        class="btn btn-primary"
-                        id="reset-geneset">
-                    Clear
-                </button>
-            </div>
-        </form>  
-        <br/>
-
-
-        <!-- ----------------------------- differential expression --------------------------------- -->
-        <form class="form-inline" role="search"> 
-            <div id="search-form" class="form-group">
-              <label for=""><small>Differential expression</small></label>
-              <div class="input-group">
-              </div>
-                <button type="button"
-                        class="btn btn-primary"
-                        id="view-diffexp">
-                    New comparison
-                </button>
-            </div>
-        </form>  
-
-
-
-      </td><td valign="top">
 
       <div id="content" class="">
-<!-- this is a hack
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
--->
+        <div id="startpage">
+          <center id="svg2">
+          </center>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+        </div>
         <div id="maincontent">
         </div>
       </div>
 
 
-      </td></tr></table>
-      <footer>
-      </footer>
     </div>
 
 
@@ -131,59 +161,95 @@
   
     
     <div class="hide">
+    
+    
+      <!-- --------------------------------------------------------------------- -->
+      <!-- --------------------------------------------------------------------- -->
+      <!-- --------------------------------------------------------------------- -->
+      <!-- --------------------------------------------------------------------- -->
+    
+    
       <div id="genepanel">
         <div style = "margin:10px; border:1px solid black; padding-left:10px; padding-right:10px; padding-top:0px; background-color:#FAFAFF;">
           <table width="100%" style="margin:0px; padding:0px; spacing:0px;">
           <tr><td>
             <h1>GENESYM <small>GENEID</small></h1>
           </td><td align="right">
+            <button type="button" class="btn btn-primary" id="btab_geneexp">Expression levels</button>
+            <button type="button" class="btn btn-primary" id="btab_genecorr">Correlations</button>
+            &nbsp;
+            &nbsp;
+            &nbsp;
             <button type="button" class="btn btn-primary" id="genepanel-toset">Add to gene set</button>
             <button type="button" class="btn btn-primary" id="genepanel-close">Close</button>
           </td></tr></table>
     
-          <table width="100%">
+          <table width="100%" id="tab_geneexp">
             <tr><td width="400px" valign="top">
               <svg id="expressionhist"/>
-            </td><td id="countlegend" align="left" valign="top">
-            </td><td align="right">
+            </td><td align="left" valign="top">
               <table>
-                <tr style="background-color: #E0E0E0;">
-                  <th>Gene</th>
-                  <th>Correlation</th>
+                <tr>
+                  <th>
+                    Dataset
+                  </th>
+                  <th>
+                    Noise for gene
+                  </th>
                 </tr>
-                <tbody id="corrlist">
+                <tbody id="countlegend">
+                  
                 </tbody>
               </table>
-              <br/>
-              <table>
-                <tr>
-                  <td>
-                    Dataset: 
-                  </td>
-                  <td>
-                    <select id="corrdataset" style="width: 150px;"></select>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    Show: 
-                  </td>
-                  <td>
-                    <select id="corrshownum" style="width: 150px;">
-                      <option value="5">5</option>
-                      <option value="10">10</option>
-                      <option value="20">20</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                      <option value="200">200</option>
-                      <option value="500">500</option>
-                      <option value="1000">1000</option>
-                    </select>
-                  </td>
-                </tr>
-              </table>
-            </td></tr>
+            </td>
           </table>
+            
+          <div id="tab_genecorr">
+            <table width="100%"><tr>
+              <td valign="top">
+                <table>
+                  <tr>
+                    <td>
+                      Dataset:
+                    </td>
+                    <td>
+                      <select id="corrdataset" style="width: 150px;"></select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Show:</td>
+                    <td>
+                      <select id="corrshownum" style="width: 150px;">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
+                        <option value="1000">1000</option>
+                      </select>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+              <td width="50%">
+                <table width="100%">
+                  <tr style="background-color: #E0E0E0;">
+                    <th>Gene ID</th>
+                    <th>Symbol</th>
+                    <th>Correlation</th>
+                  </tr>
+                  <tbody id="corrlist">
+                  </tbody>
+                </table>
+              </td>
+              
+            </tr></table>
+            
+            
+          </div>
+          
           <small>
             <a id="linkpubmed">Pubmed</a> | 
             <a id="linkensembl">ENSEMBL</a> | 
@@ -194,12 +260,24 @@
       </div>
     
     
+    
+    
+      <!-- --------------------------------------------------------------------- -->
+      <!-- --------------------------------------------------------------------- -->
+      <!-- --------------------------------------------------------------------- -->
+      <!-- --------------------------------------------------------------------- -->
+
       <div id="genesetpanel">
         <div style = "margin:10px; border:1px solid black; padding-left:10px; padding-right:10px; padding-top:0px; background-color:#FAFFFA;">
           <table width="100%">
             <tr><td>
               <h1>Geneset</h1>
             </td><td align="right">
+              <button type="button" class="btn btn-primary" id="btab_betweengenes">Gene vs gene</button>
+              <button type="button" class="btn btn-primary" id="btab_cellcorr">Cell vs gene</button>
+              &nbsp;
+              &nbsp;
+              &nbsp;
               <button type="button" class="btn btn-primary" id="genesetpanel-close">Close</button>
             </td></tr>
           </table>
@@ -210,29 +288,38 @@
               </td>
             </tr>
           </table>
-          <table width="100%">
-            <tr>
-              <td align="left" valign="top">
-                <div id="genesetcorr1">
-                </div>
-                Dataset: 
-                <select id="genegenedataset" style="width: 150px;">
-                </select>
-              </td>
-              <td align="left" valign="top">
-                <div id="genesetcorr2">
-                </div>
-                <div id="genesetcorr2legend" style="margin-left:100px;">
-                </div>
-                <br/>
-              </td>
-            </tr>
-          </table>
+          
+          
+          <div id="tab_betweengenes">
+            Dataset: 
+            <select id="genegenedataset" style="width: 150px;">
+            </select>
+            <div id="genesetcorr1">
+            </div>
+          </div>
+
+          <div id="tab_cellcorr">
+            <table width="100%">
+              <tr>
+                <td align="left" valign="top" id="genesetcorr2">
+                </td>
+                <td align="left" valign="top">
+                  <div id="genesetcorr2legend" style="margin-left:100px;">
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+
         </div>
       </div>
     
     
     
+      <!-- --------------------------------------------------------------------- -->
+      <!-- --------------------------------------------------------------------- -->
+      <!-- --------------------------------------------------------------------- -->
+      <!-- --------------------------------------------------------------------- -->
     
     
       <div id="diffexppanel">
@@ -280,9 +367,61 @@
         </div>
       </div>
     
+
+
+
+      <!-- --------------------------------------------------------------------- -->
+      <!-- --------------------------------------------------------------------- -->
+      <!-- --------------------------------------------------------------------- -->
+      <!-- --------------------------------------------------------------------- -->
     
+    
+      <div id="godmpanel">
+        <div style = "margin:10px; border:1px solid black; padding-left:10px; padding-right:10px; padding-top:0px; background-color:#FAFFFA;">
+          <table width="100%">
+            <tr><td>
+              <h1>GO Noise</h1>
+            </td><td align="right">
+              <button type="button" class="btn btn-primary" id="bclose">Close</button>
+            </td></tr>
+          </table>
+    
+          From:  <select id="ds1" style="width: 150px;"></select>
+          To:    <select id="ds2" style="width: 150px;"/></select>
+          Show:                 
+            <select id="godmshownum" style="width: 150px;">
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
+              <option value="500">500</option>
+              <option value="1000">1000</option>
+            </select>
+    
+          
+          <table width="100%">
+            <tr style="background-color: #E0E0E0;">
+              <th>GO ID</th>
+              <th>GO Name</th>
+              <th>P-value</th>
+              <th>t-score</th>
+            </tr>
+            <tbody id="godmtable">
+            </tbody>
+          </table>
+          <br/>
+          <small>
+            <a id="linkcsv">CSV</a>
+          </small>
+        </div>
+      </div>
+    
+
     
     </div>
+
 
   </body>
 

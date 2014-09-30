@@ -1,6 +1,7 @@
 
 ### todo use esexpress schema
 library("DESeq2")
+library("stringr")
 source("common.R")
 
 
@@ -271,4 +272,87 @@ compare2(cnt_es, "Nanog_med", "Nanog_lo", conditions, "Nanog_med", "Nanog_lo")
 # vs nanog
 # nanog_hi & lov
 # nanog_hi & me (all)
+
+
+
+#######################################################################################
+
+readgofile <- function(){
+  totgoid <- c()
+  totgoname <- c()
+  totgodef <- c()
+  tf <- file("../../data/go-basic.obo",open="r")
+  while (length(oneLine <- readLines(tf, n = 1, warn = FALSE)) > 0) {
+    if(oneLine=="[Term]"){
+      goid   <- readLines(tf, n = 1, warn = FALSE)   #id
+      goname <- readLines(tf, n = 1, warn = FALSE)   #name
+      readLines(tf, n = 1, warn = FALSE)             #namespace
+      godef  <- readLines(tf, n = 1, warn = FALSE)   #def
+      
+      goid <- str_sub(goid,5)
+      goname <- str_sub(goname,7)
+      godef <- str_sub(godef,7)
+      godef <- str_split(godef,pattern = "\"")[[1]][1]
+      
+      totgoid <- c(totgoid, goid)
+      totgoname <- c(totgoname, goname)
+      totgodef <- c(totgodef, godef)
+      if(length(totgoid)%%1000==0)
+        print(length(totgoid))
+    }
+  }
+  close(tf)
+  gotable <- data.frame(goid=totgoid, goname=totgoname, godef=totgodef, stringsAsFactors = FALSE)
+  return(gotable)
+}
+#gotable <- readgofile()
+#write.csv(gotable, "../../data/gosummary.csv")
+
+head(gotable)
+
+dbWriteTable(con,c("esexpress","goinfo"),gotable,append=TRUE,row.names=FALSE)
+
+
+
+
+
+################################
+
+
+uploadgodm <- function(thef, ds1, ds2){
+  onedm <- read.csv(thef,sep="\t",stringsAsFactors=FALSE)
+  onedm <- cbind(ds1, ds2, onedm)
+  colnames(onedm) <- c("dataset1","dataset2","goid","pvalue","tscore")
+  dbGetQuery(con,sprintf("delete from godm where dataset1='%s' AND dataset2='%s';",ds1,ds2))
+  dbWriteTable(con,c("esexpress","godm"),onedm,append=TRUE,row.names=FALSE)
+  onedm <- read.csv(thef,sep="\t",stringsAsFactors=FALSE)
+  onedm <- cbind(ds2, ds1, onedm)
+  colnames(onedm) <- c("dataset1","dataset2","goid","pvalue","tscore")
+  onedm$tscore <- -onedm$tscore
+  dbGetQuery(con,sprintf("delete from godm where dataset1='%s' AND dataset2='%s';",ds2,ds1))
+  dbWriteTable(con,c("esexpress","godm"),onedm,append=TRUE,row.names=FALSE)
+}
+
+uploadgodm("../../data/dm/goPvalue_2i2_a2i2.txt",    "2i2",   "a2i2")
+uploadgodm("../../data/dm/goPvalue_serum2_2i2.txt",  "serum2","2i2")
+uploadgodm("../../data/dm/goPvalue_serum2_a2i2.txt", "serum2","a2i2")
+
+
+dbGetQuery(con,sprintf("select * from godm limit 1","2i2"))
+
+
+##################################
+
+uploadgenedm <- function(thef,ds){
+  onedm <- read.csv(thef,sep="\t",stringsAsFactors=FALSE)
+  onedm <- cbind(ds, onedm)
+  colnames(onedm) <- c("dataset","geneid","genedm")
+  #print(head(onedm))
+  dbGetQuery(con,sprintf("delete from genedm where dataset='%s';",ds))
+  dbWriteTable(con,c("esexpress","genedm"),onedm,append=TRUE,row.names=FALSE)
+}
+dbGetQuery(con,sprintf("delete from genedm;"))
+uploadgenedm("../../data/dm/DM2i2.txt",    "es_2i")
+uploadgenedm("../../data/dm/DMa2i2.txt",   "es_a2i")
+uploadgenedm("../../data/dm/DMserum2.txt", "es_lif")
 

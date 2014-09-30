@@ -1,5 +1,10 @@
 #datasets = ["2i", "a2i", "lif", "s_lblast", "s_mblast", "s_eblast"]
 
+tabcolorInactive = "#0033CC"
+tabcolorActive   = "#9933CC"
+
+publication_url = "http://example.com/new_url"
+
 query = 
   gene: ""
 dispidcounter=1
@@ -9,15 +14,23 @@ thecol["es_lif"] = "#8B0000"
 thecol["es_a2i"] = "#EEAD0E"
 thecol["es_2i"]  = "#00008B"
 
-thecol["sandberg_earlyblast"] = "#FF6666"
-thecol["sandberg_midblast"]   = "#339966"  #00FF00"
-thecol["sandberg_lateblast"]  = "#0099FF"
+#thecol["sandberg_earlyblast"] = "#FF6666"
+#thecol["sandberg_midblast"]   = "#339966"  
+#thecol["sandberg_lateblast"]  = "#0099FF"
+thecol["sandberg_earlyblast"] = "#9ACD32"
+thecol["sandberg_midblast"]   = "#789C31"  
+thecol["sandberg_lateblast"]  = "#556B2F"
 
 defaultshowds = []
 defaultshowds["es_lif"] = 1
 defaultshowds["es_a2i"] = 1
 defaultshowds["es_2i"]  = 1
 
+mouseX=0
+mouseY=0
+
+current_div=null
+current_divname=null
 
 log2 = (val) ->
   Math.log(val) / Math.LN2;
@@ -44,20 +57,30 @@ search_gene_disp = (data) ->
   table = $ "#searchresult"
   table.empty()
   for rec in data
-    link = makegenelink rec.geneid, rec.genesym
+    link = $ "<a href=\"#\">"
+    link.append rec.genesym
+    link.click (() ->
+      thisrec=rec
+      return () ->
+        if current_divname=="geneexp"
+          (makeviewgenefunc thisrec.geneid, true)()
+        else
+          (makeviewgenefunc thisrec.geneid, false)())()
     table.append link
     table.append ($ "<br/>")
 
 
 
-makegenelink = (geneid, genesym) ->
-    link = $ "<a href=\"#\">"
-    link.append genesym
-    link.click (makeviewgenefunc geneid)
+makegenelink = (geneid, genesym, showexplevel) ->
+  link = $ "<a href=\"#\">"
+  link.append genesym
+  link.click (makeviewgenefunc geneid, showexplevel)
 
-makeviewgenefunc = (geneid) ->
+makeviewgenefunc = (geneid, showexplevel) ->
   return () ->
-    view_gene(geneid)
+    hide_startpage()
+    closecurrentdiv()
+    view_gene(geneid, showexplevel)
 
 
 
@@ -68,12 +91,12 @@ makeviewgenefunc = (geneid) ->
 # Open up a single gene view
 ###########################################################################
 
-view_gene = (gene) ->
+view_gene = (gene, showexplevel) ->
   query.gene = gene
   query_url = "geneinfo.php?q=#{JSON.stringify query}"   
   req = $.getJSON query_url
   req.success (data) ->
-    view_gene_disp(data)
+    view_gene_disp(data, showexplevel)
   req.fail (data) -> 
     alert("failed to query data, "+query_url)
 
@@ -83,7 +106,7 @@ addtogeneset = (genesym) ->
   genesetlist.val (genesetlist.val()+"\n"+genesym).trim()
 
 
-view_gene_disp = (geneinfo) ->
+view_gene_disp = (geneinfo, showexplevel) ->
   dispidcounter++
   thisid="genedisp"+dispidcounter
 
@@ -94,12 +117,36 @@ view_gene_disp = (geneinfo) ->
   form2 = form2.replace("GENESYM", geneinfo.genesym)
   root.prepend form2
   form2 = root.children(":first")
-  #  form2.id = thisid
   form2.attr id: thisid
-  
+
+  curtab = "geneexp"
+  if !showexplevel
+    curtab="corr"
+
+  ##### Buttons for tabs
+  updatetab = () ->
+    form2.find("#tab_geneexp").addClass "hideclass"
+    form2.find("#tab_genecorr").addClass "hideclass"
+    form2.find("#btab_geneexp").css  "background-color", tabcolorInactive
+    form2.find("#btab_genecorr").css "background-color", tabcolorInactive
+    if(curtab=="geneexp")
+      form2.find("#btab_geneexp").css "background-color", tabcolorActive
+      form2.find("#tab_geneexp").removeClass "hideclass"
+    else
+      form2.find("#btab_genecorr").css "background-color", tabcolorActive
+      form2.find("#tab_genecorr").removeClass "hideclass"
+  updatetab()
+
+  form2.find("#btab_genecorr").click () ->
+    curtab="genecorr"
+    updatetab()
+  form2.find("#btab_geneexp").click () ->
+    curtab="geneexp"
+    updatetab()
+
   $("html, body").animate (scrollTop: form2.offset().top), "slow"
 
-  root.find("#genepanel-close").click () ->
+  form2.find("#genepanel-close").click () ->
     form2.remove()
 
   form2.find("#linkpubmed").attr href: ("http://www.ncbi.nlm.nih.gov/pubmed/?term="+geneinfo.genesym)
@@ -118,7 +165,7 @@ view_gene_disp = (geneinfo) ->
   values=assmap values, log2
 
   margin = {top: 10, right: 30, bottom: 30, left: 30}
-  width = 400 - margin.left - margin.right
+  width = 800 - margin.left - margin.right
   height = 200 - margin.top - margin.bottom
 
   ##Find x-range
@@ -164,6 +211,8 @@ view_gene_disp = (geneinfo) ->
   thelines = {}
   for k in Object.keys(values)
     thelines[k] = oneline svg,x,y,data[k],thecol[k]
+    if !(defaultshowds[k] == 1)
+      thelines[k].style "opacity", 0
 
   svg.append("g")
     .attr("class", "x axis")
@@ -185,13 +234,27 @@ view_gene_disp = (geneinfo) ->
   ##Add legend
   elegend = (root.find("#countlegend")) 
   for k in Object.keys(values)
-    echeck = $ "<input type=\"checkbox\" checked=\"checked\">"
-    elegend.append echeck
+    etr = $ "<tr>"
+    elegend.append etr
+    etd = $ "<td>"
+    etr.append etd
+
+    echeck = $ "<input type=\"checkbox\">"
+    if defaultshowds[k] == 1
+      echeck.attr checked: "checked"
+    etd.append echeck
     efont = $ "<font>"
     efont.attr "color", thecol[k]
     efont.append (" "+k)
-    elegend.append efont
-    elegend.append "<br/>"
+    etd.append efont
+
+    etd = $ "<td>"
+    etr.append etd
+    thedm = geneinfo.genedm[k]
+    if thedm != null
+      etd.append thedm
+    else
+      etd.append "N/A"
 
     echeck.click (()->
       thisk=k
@@ -225,14 +288,15 @@ view_gene_disp = (geneinfo) ->
     maxloop = 1
     if (typeof values) == "undefined"
       row = $ "<tr>"
-      row.append "(not computed)"
+      row.append "(not computed for this gene)"
       table.append row
     else
       values = values.sort (a,b) -> 
         Math.abs(b.corr)-Math.abs(a.corr)
       for rec in values
         row = $ "<tr>"
-        row.append (onetd (makegenelink rec["geneid"], rec["genesym"]))
+        row.append (onetd (makegenelink rec["geneid"], rec["geneid"],  true))
+        row.append (onetd (makegenelink rec["geneid"], rec["genesym"], true))
         row.append (onetd rec["corr"])
         table.append row
         maxloop++
@@ -262,6 +326,12 @@ oneline = (svg,x,y,data,color) ->
     .attr("d", line)
 
 
+
+
+
+
+###########################################################################
+###########################################################################
 
 assmap = (values, func) ->
   newvalues={}
@@ -297,17 +367,20 @@ gaussianKernel = (sigma) ->
     return thediv*Math.exp(-u*u*thediv2)
 
 
+
+
+
 ###########################################################################
 # Open up a gene set view
 ###########################################################################
 
 add_genelist = (genelist) ->
-    req = $.get genelist
-    req.success (data) ->
-      genesetlist = $ "#genesetlist"
-      genesetlist.val (genesetlist.val()+"\n"+data).trim()
-    req.fail (data) -> 
-      alert("failed to query data")
+  req = $.get genelist
+  req.success (data) ->
+    genesetlist = $ "#genesetlist"
+    genesetlist.val (genesetlist.val()+"\n"+data).trim()
+  req.fail (data) -> 
+    alert("failed to query data, "+genelist)
 
 
 onlyUnique = (value,index,self) ->
@@ -325,6 +398,8 @@ getleftgeneset = () ->
     geneset: v
 
 view_geneset = () ->
+  closecurrentdiv()
+  hide_startpage()
   setquery = getleftgeneset()
   if setquery.geneset.length<2 || setquery.geneset.length>50
     alert("Need to select more than one gene, and at the very most 50")
@@ -356,12 +431,36 @@ view_geneset_disp = (data) ->
   $("html, body").animate (scrollTop: form2.offset().top), "slow"
 
 
+  curtab="cellcor"
+
+  updatetab = () ->
+    form2.find("#tab_betweengenes").addClass "hideclass"
+    form2.find("#tab_cellcorr").addClass "hideclass"
+    form2.find("#btab_betweengenes").css  "background-color", tabcolorInactive
+    form2.find("#btab_cellcorr").css "background-color", tabcolorInactive
+    if(curtab=="cellcor")
+      form2.find("#btab_cellcorr").css "background-color", tabcolorActive
+      form2.find("#tab_cellcorr").removeClass "hideclass"
+    else
+      form2.find("#btab_betweengenes").css "background-color", tabcolorActive
+      form2.find("#tab_betweengenes").removeClass "hideclass"
+  updatetab()
+
+
+  form2.find("#btab_cellcorr").click () ->
+    curtab="cellcor"
+    updatetab()
+  form2.find("#btab_betweengenes").click () ->
+    curtab="betweengenes"
+    updatetab()
+
+
+
   getthisgeneset = () ->
-    q = geneset: []
-    for k in data
+    q = []
+    for k in data.geneset
       q.push k.geneid
-    alert (JSON.stringify q)
-    return q
+    return geneset: q
 
   egenegeneds = form2.find("#genegenedataset")
   for k in Object.keys(thecol)
@@ -373,16 +472,17 @@ view_geneset_disp = (data) ->
   updatecorr1 = () ->
     setquery = getthisgeneset() 
     setquery.graphw=2000
-    setquery.dataset=egenesetcorr1.val() 
+    setquery.dataset=form2.find("#genegenedataset").val() 
     query_url = "corrgenegene.php?q=#{JSON.stringify setquery}"
+    #alert(query_url)
     imglink = $ "<a>"
     imglink.attr "href", query_url
     img = $ "<img>"
     setquery = getthisgeneset()
     query_url = "corrgenegene.php?q=#{JSON.stringify setquery}"
     img.attr src: query_url
-    img.attr width:  500
-    img.attr height: 500
+    img.attr width:  700
+    img.attr height: 700
     imglink.append img
     egenesetcorr1.empty()
     egenesetcorr1.append imglink
@@ -394,8 +494,8 @@ view_geneset_disp = (data) ->
   ############# gene-cell correlation map
   imglink = $ "<a>"
   img = $ "<img style=\"margin-right: -100; overflow: hidden;\">"
-  img.attr width:  500
-  img.attr height: 500
+  img.attr width:  700
+  img.attr height: 700
   imglink.append img
   root.find("#genesetcorr2").append imglink
 
@@ -404,7 +504,9 @@ view_geneset_disp = (data) ->
   echecks = {}
   echecksid = {}
   for k in Object.keys(thecol)
-    echecks[k] = $ "<input type=\"checkbox\" checked=\"checked\">"
+    echecks[k] = $ "<input type=\"checkbox\">"
+    if defaultshowds[k] == 1
+      echecks[k].attr checked: "checked"
     dispidcounter++
     echecks[k].attr "id", "genedisp"+dispidcounter
 
@@ -456,7 +558,7 @@ view_geneset_disp = (data) ->
   egenesetlist = root.find("#genesetlist")
   egenesetlist.append "<b>"
   for rec in values
-    egenesetlist.append (makegenelink rec.geneid, rec.genesym)
+    egenesetlist.append (makegenelink rec.geneid, rec.genesym, true)
     egenesetlist.append " "
 
 
@@ -477,9 +579,14 @@ $ ->
 
   search_genes()
 
-  $('#view-diffexp').click view_diffexp
+  $('#view-diffexp').click () ->
+    view_diffexp()
+  $('#view-gonoise').click () ->
+    view_godm()
 
-  $('#view-geneset').click view_geneset
+  $('#view-geneset').click () ->
+    view_geneset()
+
   $('#reset-geneset').click ()->
     genesetlist = $ "#genesetlist"
     genesetlist.val ""
@@ -487,16 +594,103 @@ $ ->
   $('#genelist_pluripotency').click () ->
     add_genelist "genelist_pluripotency.txt"
 
+  floatdivhandler '#openfloat-geneexp','#float-pickonegene',"geneexp"
+  floatdivhandler '#openfloat-genecorrone','#float-pickonegene',"genecorrone"
+  floatdivhandler '#openfloat-genecorrmany','#float-pickgeneset',"genecorrmany"
+  floatdivhandler '#openfloat-cellcorr','#float-pickgeneset',"cellcor"
+  floatdivhandler '#openfloat-download','#float-download',"download"
+
+  $(document).mousemove (e) ->
+   mouseX = e.pageX 
+   mouseY = e.pageY
+
+  $("#paperlink").attr href: publication_url
+
+  reqsvg = $.get "startsite.svg"
+  reqsvg.success (data) ->
+    thesvg = $ "#svg2"
+    thesvg.prepend (new XMLSerializer().serializeToString(data))
+
+    floatdivhandler2 "#svg_geneexp","#float-pickonegene","geneexp"
+    floatdivhandler2 "#svg_genecorrone","#float-pickonegene","genecorrone"
+    floatdivhandler2 "#svg_genecorrmany","#float-pickgeneset","genecorrmany"
+    floatdivhandler2 "#svg_cellcorr","#float-pickgeneset","cellcor"
+    floatdivhandler2 "#svg_download","#float-download","download"
+
+    ($ "#svg2").find("#svg_diffexp").click () ->
+      view_diffexp()
+    ($ "#svg2").find("#svg_publication").click () ->
+      view_publication()
+    ($ "#svg2").find("#svg_gonoise").click () ->
+      view_godm()
+
+
+view_publication = () ->
+  window.location.href = publication_url
+
+hide_startpage = () ->
+  $("#startpage").addClass "hideclass"
+  $("#topmenu").removeClass "hideclass"
+
+
+getMethods = (obj) ->
+  result = []
+  for id in obj
+    #if (typeof(obj[id]) == "function")
+    result.push(id + ": " + obj[id].toString())
+  return result
+
+
+
+##### Set a button to open a hidden div
+floatdivhandler = (buttonid,floatname,divname) ->
+  thebutton = $(buttonid)
+  thebutton.click () ->
+    thediv = $(floatname)
+
+    if(current_divname!=divname)
+      closecurrentdiv()
+
+    if(thediv.hasClass "hideclass")
+      thediv.removeClass "hideclass"
+      thediv.css "top",(thebutton.position().top+thebutton.outerHeight())
+      thediv.css "left",(thebutton.position().left)
+      current_div=thediv
+      current_divname=divname
+    else
+      thediv.addClass "hideclass"
+      current_div=null
+      current_divname=divname
+
+
+##### Set a button to open a hidden div   (called from link in div)
+floatdivhandler2 = (linkid, floatname,divname) ->
+  thesvg = $ "#svg2"
+  thesvg.find(linkid).click () ->
+    thediv = $(floatname)
+    if(current_divname!=divname)
+      closecurrentdiv()
+
+    if(thediv.hasClass "hideclass")
+      thediv.removeClass "hideclass"
+      thediv.css "top",mouseY
+      thediv.css "left",mouseX
+      current_div=thediv
+      current_divname=divname
+    else
+      thediv.addClass "hideclass"
+      current_div=null
+      current_divname=divname
 
 
 
 
-
-
-
-
-
-
+#### Close current div
+closecurrentdiv = () ->
+  if(current_div!=null)
+    current_div.addClass "hideclass"
+    current_div=null
+    current_divname=null
 
 
 
@@ -523,11 +717,14 @@ $ ->
 
 
 view_diffexp = () ->
-  req = $.getJSON "availablediffexp.php"
+  closecurrentdiv()
+  hide_startpage()
+  theurl = "availablediffexp.php"
+  req = $.getJSON theurl
   req.success (data) ->
     view_diffexp2 data
   req.fail (data) -> 
-    alert("failed to query data")
+    alert("failed to query data, "+theurl)
 
 
 view_diffexp2 = (dslist) ->
@@ -550,7 +747,6 @@ view_diffexp2 = (dslist) ->
   eds2 = form2.find("#ds2")
   etable = form2.find("#diffexptable")
   egraph = form2.find("#diffexpgraph")
-  elinkcsv = form2.find("#linkcsv")
 
   getdsquery = () ->
     query =
@@ -558,6 +754,7 @@ view_diffexp2 = (dslist) ->
       dataset2: eds2.val()
     return "diffexp.php?q=#{JSON.stringify query}"   
 
+  elinkcsv = form2.find("#linkcsv")
   updatecsvlink = () ->
     elinkcsv.attr href: getdsquery()
 
@@ -591,7 +788,7 @@ view_diffexp2 = (dslist) ->
             etd = $ "<td class=\"corrtd\"/>"
             etd.append ea
             etd.append " "
-            etd.append makegenelink rec.geneid, rec.genesym
+            etd.append (makegenelink rec.geneid, rec.genesym, true)
   
             etr = $ "<tr/>"
             etr.append etd
@@ -670,7 +867,7 @@ view_diffexp2 = (dslist) ->
             .attr("r", 3)
             .style("fill", "red")
           ea = svg.append("a")
-            .on("click",makeviewgenefunc(datasub[i].geneid))
+            .on("click",makeviewgenefunc(datasub[i].geneid),true)
             .append("text")
             .attr("x", x datasub[i].mean1)
             .attr("y", (y datasub[i].mean2)-5)
@@ -701,3 +898,97 @@ makeoption = (val,title) ->
   eopt.append title
   return eopt
 
+
+
+
+
+###########################################################################
+# Show GO DM
+###########################################################################
+
+
+view_godm = () ->
+  closecurrentdiv()
+  hide_startpage()
+  theurl = "availablegodm.php"
+  req = $.getJSON theurl
+  req.success (data) ->
+    view_godm2 data
+  req.fail (data) -> 
+    alert("failed to query data, "+theurl)
+
+
+view_godm2 = (dslist) ->
+  dispidcounter++
+  thisid="genedisp"+dispidcounter
+
+  root = $ "#maincontent"
+  form2 = $ "#godmpanel"
+  form2 = form2.html()
+  root.prepend form2
+  form2 = root.children(":first")
+  form2.attr id: thisid
+  
+  $("html, body").animate (scrollTop: form2.offset().top), "slow"
+
+  form2.find("#bclose").click () ->
+    form2.remove()
+
+  eds1 = form2.find("#ds1")
+  eds2 = form2.find("#ds2")
+  etable = form2.find("#godmtable")
+
+  getdsquery = () ->
+    query =
+      dataset1: eds1.val()
+      dataset2: eds2.val()
+    return "godm.php?q=#{JSON.stringify query}"   
+
+  elinkcsv = form2.find("#linkcsv")
+  updatecsvlink = () ->
+    elinkcsv.attr href: getdsquery()
+
+  ## Choice of dataset 1 and 2
+  for rec in dslist
+    eds1.append makeoption rec.dataset1,rec.dataset1
+  updateds2 = () ->
+    for rec in dslist
+      if eds1.val() == rec.dataset1
+        eds2.append makeoption rec.dataset2,rec.dataset2
+  updateds2()
+  form2.find("#ds1").change () ->
+    updateds2()
+
+  ## Update the contents of the table
+  filltable = (() ->
+    thisform2 = form2
+    return () ->
+      shownum = +thisform2.find("#godmshownum").val()
+      d3.csv getdsquery(), (data) ->
+        etable.empty()
+        for i in [0..(Math.min shownum,(data.length-1))]
+          (() ->
+            rec = data[i]
+            etr = $ "<tr/>"
+            etr.append onetd rec.goid
+            etr.append onetd rec.goname
+#            etr.append onetd (+rec.pvalue).toPrecision 2
+            etr.append onetd rec.pvalue
+            etr.append onetd (+rec.tscore).toPrecision 2
+            etable.append etr
+            )()
+      )()
+
+      
+
+  filltable()
+  updatecsvlink()
+
+  form2.find("#godmshownum").change () ->
+    filltable()
+  form2.find("#ds1").change () ->
+    filltable()
+    updatecsvlink()
+  form2.find("#ds2").change () ->
+    filltable()
+    updatecsvlink()

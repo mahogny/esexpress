@@ -88,3 +88,15 @@ dl {
   fill: none;
 }
 
+.hideclass {
+  display:none;
+}
+
+.hoveringdiv {
+  z-index: 10;
+  position: absolute;
+  background-color: #FFFFFF;
+  border:1px solid black;
+  padding:5px;
+  
+}
