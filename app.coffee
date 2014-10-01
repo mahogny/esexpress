@@ -1,5 +1,8 @@
 #datasets = ["2i", "a2i", "lif", "s_lblast", "s_mblast", "s_eblast"]
 
+GENESETTAB_CELLCOR      = "cellcor"
+GENESETTAB_BETWEENGENES = "betweengenes"
+
 tabcolorInactive = "#0033CC"
 tabcolorActive   = "#9933CC"
 
@@ -10,16 +13,25 @@ query =
 dispidcounter=1
 
 thecol = {}
-thecol["es_lif"] = "#8B0000"
-thecol["es_a2i"] = "#EEAD0E"
-thecol["es_2i"]  = "#00008B"
+thecol["es_serum"] = "#8B0000"
+thecol["es_a2i"]   = "#EEAD0E"
+thecol["es_2i"]    = "#00008B"
 
 #thecol["sandberg_earlyblast"] = "#FF6666"
 #thecol["sandberg_midblast"]   = "#339966"  
 #thecol["sandberg_lateblast"]  = "#0099FF"
+
 thecol["sandberg_earlyblast"] = "#9ACD32"
 thecol["sandberg_midblast"]   = "#789C31"  
 thecol["sandberg_lateblast"]  = "#556B2F"
+
+thecol["es_2i: blastocyst-like"]    = "#0099CC"
+thecol["es_2i: 2C-like"]            = "#003399"
+thecol["es_serum: more pluripotent cells"]  = "#990000"
+thecol["es_serum: primed cells"]            = "#CC4D4D"
+thecol["es_serum: differentiating cells"]   = "#FF9999"
+
+
 
 defaultshowds = []
 defaultshowds["es_lif"] = 1
@@ -386,6 +398,7 @@ add_genelist = (genelist) ->
 onlyUnique = (value,index,self) ->
   (self.indexOf value) == index
 
+
 getleftgeneset = () ->
   v = ($ "#genesetlist").val()
   v = (v.split "\n").join " "
@@ -397,24 +410,27 @@ getleftgeneset = () ->
   setquery =
     geneset: v
 
+
+
 view_geneset = () ->
+  usetab = current_divname
   closecurrentdiv()
   hide_startpage()
   setquery = getleftgeneset()
+
   if setquery.geneset.length<2 || setquery.geneset.length>50
     alert("Need to select more than one gene, and at the very most 50")
   else
     query_url = "geneset.php?q=#{JSON.stringify setquery}"   #todo, use POST. and different query!
     req = $.getJSON query_url
     req.success (data) ->
-      view_geneset_disp(data)
+      view_geneset_disp(data,usetab)
     req.fail (data) -> 
       alert("failed to query data, "+query_url)
   
 
 
-view_geneset_disp = (data) ->
-
+view_geneset_disp = (data, curtab) ->
   dispidcounter++
   thisid="genesetdisp"+dispidcounter
 
@@ -430,8 +446,6 @@ view_geneset_disp = (data) ->
 
   $("html, body").animate (scrollTop: form2.offset().top), "slow"
 
-
-  curtab="cellcor"
 
   updatetab = () ->
     form2.find("#tab_betweengenes").addClass "hideclass"
@@ -596,8 +610,8 @@ $ ->
 
   floatdivhandler '#openfloat-geneexp','#float-pickonegene',"geneexp"
   floatdivhandler '#openfloat-genecorrone','#float-pickonegene',"genecorrone"
-  floatdivhandler '#openfloat-genecorrmany','#float-pickgeneset',"genecorrmany"
-  floatdivhandler '#openfloat-cellcorr','#float-pickgeneset',"cellcor"
+  floatdivhandler '#openfloat-genecorrmany','#float-pickgeneset',GENESETTAB_BETWEENGENES
+  floatdivhandler '#openfloat-cellcorr','#float-pickgeneset',GENESETTAB_CELLCOR
   floatdivhandler '#openfloat-download','#float-download',"download"
 
   $(document).mousemove (e) ->
@@ -613,8 +627,8 @@ $ ->
 
     floatdivhandler2 "#svg_geneexp","#float-pickonegene","geneexp"
     floatdivhandler2 "#svg_genecorrone","#float-pickonegene","genecorrone"
-    floatdivhandler2 "#svg_genecorrmany","#float-pickgeneset","genecorrmany"
-    floatdivhandler2 "#svg_cellcorr","#float-pickgeneset","cellcor"
+    floatdivhandler2 "#svg_genecorrmany","#float-pickgeneset",GENESETTAB_BETWEENGENES
+    floatdivhandler2 "#svg_cellcorr","#float-pickgeneset",GENESETTAB_CELLCOR
     floatdivhandler2 "#svg_download","#float-download","download"
 
     ($ "#svg2").find("#svg_diffexp").click () ->
@@ -972,7 +986,6 @@ view_godm2 = (dslist) ->
             etr = $ "<tr/>"
             etr.append onetd rec.goid
             etr.append onetd rec.goname
-#            etr.append onetd (+rec.pvalue).toPrecision 2
             etr.append onetd rec.pvalue
             etr.append onetd (+rec.tscore).toPrecision 2
             etable.append etr

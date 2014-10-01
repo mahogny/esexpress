@@ -9,6 +9,8 @@ normalizeDeseq <- function(cnt) t(t(cnt)/estimateSizeFactorsForMatrix(cnt))
 
 
 
+
+
 ####################################################################################
 ## Read ola counts from all the files
 readcntola <- function(f){
@@ -29,13 +31,20 @@ cnt_es<-
     readcntola("../../data/ola_mES_lif_2.txt"),
     readcntola("../../data/ola_mES_lif_3.txt"))
 
+
+
+#remove dead cells
+removedcells <- read.table("../../data/removed_cells.txt",header=FALSE,sep=" ",stringsAsFactors=FALSE)[,2]
+cnt_es <- cnt_es[,-(which(colnames(cnt_es) %in% removedcells))]
+
+#save new table
+#write.table(cnt_es,"static/counttable_es.csv")
+
 #remove ERCs and other crap
 cnt_es <- cnt_es[-grep("ERCC",rownames(cnt_es)),]
 cnt_es <- cnt_es[-grep("_",rownames(cnt_es)),]
 
-#remove dead cells, normalize
-removedcells <- read.table("../../data/removed_cells.txt",header=FALSE,sep=" ",stringsAsFactors=FALSE)[,2]
-cnt_es <- cnt_es[,-(which(colnames(cnt_es) %in% removedcells))]
+#normalize
 cnt_es_notnorm <- cnt_es
 cnt_es <- normalizeDeseq(cnt_es)
 
@@ -65,10 +74,17 @@ ds_ola_lif<-cnt_es[ids,grep("lif",colnames(cnt_es))]
 ds_ola_2i <-cnt_es[ids,grep("_2i_",colnames(cnt_es))]
 ds_ola_a2i<-cnt_es[ids,grep("_a2i_",colnames(cnt_es))]
 
-uploadcounts("es_lif",ds_ola_lif)
+dbGetQuery(con,sprintf("delete from geneexp;"))
+uploadcounts("es_serum",ds_ola_lif)
 uploadcounts("es_2i", ds_ola_2i)
 uploadcounts("es_a2i",ds_ola_a2i)
 #dbReadTable(con,"geneexp")[,2]
+
+
+
+
+
+
 
 
 ####################################################################################
@@ -142,7 +158,7 @@ plugenes[-(which(mapsymid(plugenes) %in% rownames(red_ds_ola_2i)))]
 
 #ncol(es_cnt)  ##check, 704???
 
-uploadcorr("es_lif",getexpressed(ds_ola_lif))
+uploadcorr("es_serum",getexpressed(ds_ola_lif))
 uploadcorr("es_2i", getexpressed(ds_ola_2i))   #did it die here already?
 uploadcorr("es_a2i",getexpressed(ds_ola_a2i))
 uploadcorr("sandberg_earlyblast",getexpressed(ds_s_eblast))
@@ -165,7 +181,7 @@ geneinfo<-as.data.frame(geneinfo,stringsAsFactors=FALSE)
 geneinfo <- geneinfo[which(geneinfo$geneid %in% rownames(ds_ola_lif)),]
 
 dbGetQuery(con,"delete from geneinfo;")
-dbWriteTable(con,"geneinfo",geneinfo,append=TRUE,row.names=FALSE)
+dbWriteTable(con,c("esexpress","geneinfo"),geneinfo,append=TRUE,row.names=FALSE)
 dbReadTable(con,"geneinfo")
 
 
@@ -243,7 +259,7 @@ compare2 <- function(cnt_es, seta, setb, conditions, ds1name, ds2name){
   
   dbGetQuery(con,sprintf("delete from diffexp WHERE dataset1='%s' AND dataset2='%s';",ds1name,ds2name))
   dbGetQuery(con,sprintf("delete from diffexp WHERE dataset1='%s' AND dataset2='%s';",ds2name,ds1name))
-  dbWriteTable(con,"diffexp",out2,append=TRUE,row.names=FALSE)
+  dbWriteTable(con,c("esexpress","diffexp"),out2,append=TRUE,row.names=FALSE)
   
 }
 
@@ -252,18 +268,30 @@ compare2 <- function(cnt_es, seta, setb, conditions, ds1name, ds2name){
 set_2i=c("2i","2C")
 set_nanog=c("Nanog_hi","Nanog_med","Nanog_lo")
 
-compare2(cnt_es, "2i",   "2C",            conditions, "es_2i_2i",  "es_2i_2C")
-compare2(cnt_es, set_2i, set_nanog,       conditions, "es_2i",     "es_nanog")
+compare2(cnt_es, "2i",   "2C",            conditions, "es_2i: blastocyst-like",  "es_2i: 2C-like")
+compare2(cnt_es, set_2i, set_nanog,       conditions, "es_2i",                   "es_nanog") ????????????????
 
 compare2(cnt_es, "a2i", set_2i,           conditions, "es_a2i",    "es_2i")
-compare2(cnt_es, "a2i", set_nanog,        conditions, "es_a2i",    "es_nanog")
+compare2(cnt_es, "a2i", set_nanog,        conditions, "es_a2i",    "es_nanog") ???????????????????
 
-compare2(cnt_es, "Nanog_hi", "Nanog_med", conditions, "Nanog_hi",  "Nanog_med")
-compare2(cnt_es, "Nanog_hi", "Nanog_lo",  conditions, "Nanog_hi",  "Nanog_lo")
-compare2(cnt_es, "Nanog_med", "Nanog_lo", conditions, "Nanog_med", "Nanog_lo")
+compare2(cnt_es, "Nanog_hi",  "Nanog_med", conditions, "es_serum: more pluripotent cells",  "es_serum: primed cells")
+compare2(cnt_es, "Nanog_hi",  "Nanog_lo",  conditions, "es_serum: more pluripotent cells",  "es_serum: differentiating cells")
+compare2(cnt_es, "Nanog_med", "Nanog_lo",  conditions, "es_serum: primed cells",            "es_serum: differentiating cells")
 
 #rs<-dbSendQuery(con, "select distinct dataset1,dataset2 from diffexp")
 #fetch(rs,n=-1)
+
+# 
+# all 2i -> 2i
+# all serum -> serum
+# all a2i -> a2i
+# 
+# 2C -> 2i: 2C-like
+# 2i_non2C -> 2i: blastocyst-like
+# Nanog-low -> serum: differentiating cells
+# Nanog-medium -> serum: primed cells
+# Nanog-high -> serum: more pluripotent cells
+
 
 
 # 2C 2i
@@ -354,5 +382,5 @@ uploadgenedm <- function(thef,ds){
 dbGetQuery(con,sprintf("delete from genedm;"))
 uploadgenedm("../../data/dm/DM2i2.txt",    "es_2i")
 uploadgenedm("../../data/dm/DMa2i2.txt",   "es_a2i")
-uploadgenedm("../../data/dm/DMserum2.txt", "es_lif")
+uploadgenedm("../../data/dm/DMserum2.txt", "es_serum")
 

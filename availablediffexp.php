@@ -13,7 +13,7 @@ pg_free_result($rs);
 
 ### Return result
 #header('filename="data.json"; ');
-#header('Content-Type: application/json; ');
+header('Content-Type: application/json; ');
 echo json_encode($results);
 
 
