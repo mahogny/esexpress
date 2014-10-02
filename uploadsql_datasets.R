@@ -1,0 +1,15 @@
+source("uploadsql.r")
+
+#dbGetQuery(con,sprintf("delete from geneexp;"))
+uploadcounts("es_serum",ds_ola_lif)
+uploadcounts("es_2i", ds_ola_2i)
+uploadcounts("es_a2i",ds_ola_a2i)
+#dbReadTable(con,"geneexp")[,2]
+
+
+uploadcounts("sandberg_lateblast",ds_s_lblast)
+uploadcounts("sandberg_midblast", ds_s_mblast)
+uploadcounts("sandberg_earlyblast",ds_s_eblast)
+
+
+
