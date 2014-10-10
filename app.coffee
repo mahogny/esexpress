@@ -970,13 +970,12 @@ view_godm2 = (dslist) ->
 
   ## Choice of dataset 1 and 2
   eds1.empty()
-  for rec in (makeunique dslist).sort()
-    eds1.append makeoption rec.dataset1,rec.dataset1
+  for rec in (makeunique (dslist.map (x) -> x.dataset1)).sort()
+    eds1.append makeoption rec,rec
   updateds2 = () ->
     eds2.empty()
-    for rec in (makeunique dslist).sort()
-      if eds1.val() == rec.dataset1
-        eds2.append makeoption rec.dataset2,rec.dataset2
+    for rec in (makeunique ((dslist.filter (x) -> eds1.val()==x.dataset1).map (x) -> x.dataset2)).sort()
+      eds2.append makeoption rec,rec
   updateds2()
   form2.find("#ds1").change () ->
     updateds2()
