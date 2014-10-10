@@ -13,30 +13,26 @@ query =
 dispidcounter=1
 
 thecol = {}
-thecol["es_serum"] = "#8B0000"
-thecol["es_a2i"]   = "#EEAD0E"
-thecol["es_2i"]    = "#00008B"
-
-#thecol["sandberg_earlyblast"] = "#FF6666"
-#thecol["sandberg_midblast"]   = "#339966"  
-#thecol["sandberg_lateblast"]  = "#0099FF"
+thecol["mES_serum"] = "#AA0000"
+thecol["mES_a2i"]   = "#EEAD0E"
+thecol["mES_2i"]    = "#00008B"
 
 thecol["sandberg_earlyblast"] = "#9ACD32"
 thecol["sandberg_midblast"]   = "#789C31"  
 thecol["sandberg_lateblast"]  = "#556B2F"
 
-thecol["es_2i: blastocyst-like"]    = "#0099CC"
-thecol["es_2i: 2C-like"]            = "#003399"
-thecol["es_serum: more pluripotent cells"]  = "#990000"
-thecol["es_serum: primed cells"]            = "#CC4D4D"
-thecol["es_serum: differentiating cells"]   = "#FF9999"
+thecol["mES_2i: blastocyst-like"]    = "#0099CC"
+thecol["mES_2i: 2C-like"]            = "#003399"
+thecol["mES_serum: more pluripotent cells"]  = "#990000"
+thecol["mES_serum: primed cells"]            = "#CC4D4D"
+thecol["mES_serum: differentiating cells"]   = "#FF9999"
 
 
 
 defaultshowds = []
-defaultshowds["es_lif"] = 1
-defaultshowds["es_a2i"] = 1
-defaultshowds["es_2i"]  = 1
+defaultshowds["mES_serum"] = 1
+defaultshowds["mES_a2i"] = 1
+defaultshowds["mES_2i"]  = 1
 
 mouseX=0
 mouseY=0
@@ -177,7 +173,7 @@ view_gene_disp = (geneinfo, showexplevel) ->
   values=assmap values, log2
 
   margin = {top: 10, right: 30, bottom: 30, left: 30}
-  width = 800 - margin.left - margin.right
+  width = 650 - margin.left - margin.right
   height = 200 - margin.top - margin.bottom
 
   ##Find x-range
@@ -245,7 +241,7 @@ view_gene_disp = (geneinfo, showexplevel) ->
 
   ##Add legend
   elegend = (root.find("#countlegend")) 
-  for k in Object.keys(values)
+  for k in Object.keys(values).sort()
     etr = $ "<tr>"
     elegend.append etr
     etd = $ "<td>"
@@ -492,7 +488,9 @@ view_geneset_disp = (data, curtab) ->
     imglink = $ "<a>"
     imglink.attr "href", query_url
     img = $ "<img>"
+
     setquery = getthisgeneset()
+    setquery.dataset=form2.find("#genegenedataset").val() 
     query_url = "corrgenegene.php?q=#{JSON.stringify setquery}"
     img.attr src: query_url
     img.attr width:  700
@@ -913,7 +911,14 @@ makeoption = (val,title) ->
   return eopt
 
 
-
+#function makeunique(a)
+#    temp = {}
+#    for i in [0..(a.length-1)]
+#        temp[a[i]] = true
+#    r = []
+#    for k in temp
+#        r.push k
+#    return r
 
 
 ###########################################################################
@@ -963,10 +968,10 @@ view_godm2 = (dslist) ->
     elinkcsv.attr href: getdsquery()
 
   ## Choice of dataset 1 and 2
-  for rec in dslist
+  for rec in ($.unique dslist)
     eds1.append makeoption rec.dataset1,rec.dataset1
   updateds2 = () ->
-    for rec in dslist
+    for rec in ($.unique dslist)
       if eds1.val() == rec.dataset1
         eds2.append makeoption rec.dataset2,rec.dataset2
   updateds2()

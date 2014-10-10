@@ -53,7 +53,7 @@ function splitcomma($x){
 ###############################################################################
 # Keep only alphanumeric symbols
 function filteralpha($s){
-  return preg_replace("/[^a-zA-Z0-9+]/","", $s);
+  return preg_replace("/[^: _\-a-zA-Z0-9+]/","", $s);
 }
 
 ?>

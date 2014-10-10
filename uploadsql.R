@@ -55,6 +55,24 @@ ds_ola_lif<-cnt_es[ids,grep("lif",colnames(cnt_es))]
 ds_ola_2i <-cnt_es[ids,grep("_2i_",colnames(cnt_es))]
 ds_ola_a2i<-cnt_es[ids,grep("_a2i_",colnames(cnt_es))]
 
+
+
+cellstates <- read.csv("../../data/cell_states.txt",sep=" ",stringsAsFactors=FALSE)[,c(2,3)]
+conditions <- merge(data.frame(cell=colnames(cnt_es),stringsAsFactors = FALSE), cellstates)$state
+
+set_2i=c("2i","2C")
+set_nanog=c("Nanog_hi","Nanog_med","Nanog_lo")
+
+ds_ola_2i_2C<-cnt_es[ids,conditions=="2C"]
+ds_ola_2i_2i<-cnt_es[ids,conditions=="2i"]
+ds_ola_nanog_hi <-cnt_es[ids,conditions=="Nanog_hi"]
+ds_ola_nanog_med<-cnt_es[ids,conditions=="Nanog_med"]
+ds_ola_nanog_lo <-cnt_es[ids,conditions=="Nanog_lo"]
+
+
+####################################################################################
+
+
 ## Count tables for sandberg
 datsand<-read.table("../../data/Sandberg_data.txt",sep=" ", stringsAsFactors = FALSE)[,-(1:7)]
 nsand <- normalizeDeseq(datsand)
@@ -128,12 +146,13 @@ uploadcorr <- function(dataset, cnt){
 #Reduce to around 5000 genes. it should be the ones with a few cells having some expr
 getexpressed <- function(ds){
   foo <- apply(ds_ola_lif>20,1,function(x) length(which(x))>3)    #30 for 600 genes
-  ds[which(foo),]
+  ds[which(rownames(ds) %in% names(foo)[which(foo)]),]
 }
 #red_ds_ola_2i <- getexpressed(ds_ola_2i)
 #nrow(red_ds_ola_2i)
 
-
+#foo <- apply(ds_ola_lif>20,1,function(x) length(which(x))>3)    #30 for 600 genes
+which(rownames(ds_s_eblast) %in% names(foo)[which(foo)])
 
 #check that all genes on basal list are there!  >20 & >3 is ok
 #plugenes <- read.table("genelist_pluripotency.txt",stringsAsFactors = FALSE)[,1]
@@ -147,6 +166,7 @@ getexpressed <- function(ds){
 
 
 #uploadcorr("es_lif",ds_ola_lif)
+
 
 
 

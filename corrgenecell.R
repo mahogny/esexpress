@@ -62,7 +62,7 @@ for(i in 1:nrow(counts)){
 
 ## Transform to log count
 totmatrix <- log(totmatrix+1)
-
+totmatrix <- t(totmatrix) #ola preference for graph orientation
 
 
 
@@ -78,19 +78,26 @@ totmatrix <- log(totmatrix+1)
 
 bitmap("|cat",type="pngalpha",width=graphw,height=graphw,units="px")
 
-cor(t(totmatrix))
+#cor(t(totmatrix))
 
 #my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
 my_palette <- colorRamps::matlab.like
 
-
 rowcol <- rep("black",nrow(totmatrix))
-rowcol[which(totds == "es_lif")] <- "#8B0000"
-rowcol[which(totds == "es_a2i")] <- "#EEAD0E"
-rowcol[which(totds == "es_2i")]  <- "#00008B"
-rowcol[which(totds == "sandberg_earlyblast")] <- "#FF0000"
-rowcol[which(totds == "sandberg_midblast")]   <- "#00FF00"
-rowcol[which(totds == "sandberg_lateblast")]  <- "#0000FF"
+rowcol[which(totds == "mES_serum")] <- "#AA0000"    #this would be better in a separate file!
+rowcol[which(totds == "mES_a2i")]   <- "#EEAD0E"
+rowcol[which(totds == "mES_2i")]    <- "#00008B"
+rowcol[which(totds == "sandberg_earlyblast")] <- "#9ACD32"
+rowcol[which(totds == "sandberg_midblast")]   <- "#789C31"
+rowcol[which(totds == "sandberg_lateblast")]  <- "#556B2F"
+
+rowcol[which(totds == "mES_2i: blastocyst-like")]            <- "#0099CC"
+rowcol[which(totds == "mES_2i: 2C-like")]                    <- "#003399"
+rowcol[which(totds == "mES_serum: more pluripotent cells")]  <- "#990000"
+rowcol[which(totds == "mES_serum: primed cells")]            <- "#CC4D4D"
+rowcol[which(totds == "mES_serum: differentiating cells")]   <- "#FF9999"
+
+
 heatmap.2(
   totmatrix,
   margins=c(10,10),
@@ -98,11 +105,11 @@ heatmap.2(
   key.title="Expression",
   key.xlab="",
   key.ylab="",
-  RowSideColors = rowcol, 
+  ColSideColors = rowcol, 
   trace="none", 
   col=my_palette,
   #dendrogram="none",   #optional
-  labRow=NA,
+  labCol=NA,
   #labCol=NA,  #optional
   cexCol=2)
 

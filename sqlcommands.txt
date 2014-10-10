@@ -20,10 +20,11 @@ CREATE TABLE esexpress.genecorr (
 	togene    TEXT[] NOT NULL,
 	corr      REAL[] NOT NULL,   --indexed over the other gene "to"
 	corrp     REAL[] NOT NULL,
-	corrv     REAL[] NOT NULL,
+	corrv     REAL[] NOT NULL,     --drop columns p,v,m?
 	corrm     REAL[] NOT NULL,
 	PRIMARY KEY (dataset, fromgene)
 );
+CREATE INDEX ON esexpress.genecorr (fromgene);
 
 CREATE TABLE esexpress.geneexp (
 	dataset    TEXT,
@@ -32,7 +33,7 @@ CREATE TABLE esexpress.geneexp (
 	exp        REAL[] NOT NULL,   --indexed over cells
 	PRIMARY KEY (dataset,fromgene)
 );
-
+CREATE INDEX ON esexpress.geneexp (fromgene);
 
 
 CREATE TABLE esexpress.genecorrdiff (
@@ -51,10 +52,10 @@ CREATE TABLE esexpress.diffexp (
 	dataset2   TEXT,
 	geneid     TEXT,
 
-	mean1      REAL NOT NULL,
-	mean2      REAL NOT NULL,
-	pvalue     REAL NOT NULL,
-	padj       REAL NOT NULL,
+	mean1      DOUBLE PRECISION NOT NULL,
+	mean2      DOUBLE PRECISION NOT NULL,
+	pvalue     DOUBLE PRECISION NOT NULL,
+	padj       DOUBLE PRECISION NOT NULL,
 	PRIMARY KEY (dataset1, dataset2, geneid)
 );
 

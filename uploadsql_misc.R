@@ -1,4 +1,4 @@
-source("uploadsql.r")
+source("uploadsql.R")
 
 ####################################################################################
 ## Gene info
@@ -55,7 +55,6 @@ test_geneexp
 
 
 
-cellstates <- read.csv("../../data/cell_states.txt",sep=" ",stringsAsFactors=FALSE)[,c(2,3)]
 
 #conditions <- cellstates[,2]
 #colnames(cnt_es) == conditions
@@ -76,37 +75,49 @@ compare2 <- function(cnt_es, seta, setb, conditions, ds1name, ds2name){
   cds <- estimateDispersions( cds )
   out <- nbinomTest(cds, "SETA", "SETB")
   out <- out[order(out$padj),]
-  out2 <- out[out$padj<0.05,]
+  out2 <- out[which(out$padj<0.05),]
+  out2 <- as.data.frame(out2,stringsAsFactors = FALSE)
   
-  #  ds1name <- "foo1"
-  #  ds2name <- "foo2"
-  out2 <- cbind(ds1name, ds2name, out2[,c(1,3,4,7,8)])
-  colnames(out2) <- c("dataset1","dataset2","geneid","mean1","mean2","pvalue","padj")
+  ds1name <- rep(ds1name,times = nrow(out2))
+  ds2name <- rep(ds2name,times = nrow(out2))
   
-  #Store twice for simplicity?
+  out3 <- data.frame(dataset1=ds1name, dataset2=ds2name, geneid=out2$id, 
+                   mean1=out2$baseMeanA, mean2=out2$baseMeanB, pvalue=out2$pval, padj=out2$padj, stringsAsFactors = FALSE)
+
+  out4 <- data.frame(dataset1=ds2name, dataset2=ds1name, geneid=out2$id, 
+                   mean1=out2$baseMeanB, mean2=out2$baseMeanA, pvalue=out2$pval, padj=out2$padj, stringsAsFactors = FALSE)
+#  colnames(out3) <- c("dataset1","dataset2","geneid","mean1","mean2","pvalue","padj")
+  
+  
+  #print(length(which(is.na(out2$geneid))))
   
   dbGetQuery(con,sprintf("delete from diffexp WHERE dataset1='%s' AND dataset2='%s';",ds1name,ds2name))
   dbGetQuery(con,sprintf("delete from diffexp WHERE dataset1='%s' AND dataset2='%s';",ds2name,ds1name))
-  dbWriteTable(con,c("esexpress","diffexp"),out2,append=TRUE,row.names=FALSE)
   
+  #Store twice for simplicity
+  print("writing table 1...")
+  dbWriteTable(con,c("esexpress","diffexp"),out3,append=TRUE,row.names=FALSE)
+  print("writing table 2...")
+  dbWriteTable(con,c("esexpress","diffexp"),out4,append=TRUE,row.names=FALSE)
+
+  #an alternative is to just query twice...
 }
 
 #dbGetQuery(con,"delete from diffexp;")
 
-conditions <- merge(data.frame(cell=colnames(cnt_es),stringsAsFactors = FALSE), cellstates)$state
 
-set_2i=c("2i","2C")
-set_nanog=c("Nanog_hi","Nanog_med","Nanog_lo")
 
-compare2(cnt_es, "2i",   "2C",            conditions, "es_2i: blastocyst-like",  "es_2i: 2C-like")
-compare2(cnt_es, set_2i, set_nanog,       conditions, "es_2i",                   "es_nanog") ????????????????
+dbGetQuery(con,sprintf("delete from diffexp;"))
 
-compare2(cnt_es, "a2i", set_2i,           conditions, "es_a2i",    "es_2i")
-compare2(cnt_es, "a2i", set_nanog,        conditions, "es_a2i",    "es_nanog") ???????????????????
+compare2(cnt_es_notnorm, "2i",   "2C",            conditions, "mES_2i: blastocyst-like",  "mES_2i: 2C-like")   #done
+compare2(cnt_es_notnorm, set_2i, set_nanog,       conditions, "mES_2i",                   "mES_nanog")  # ????????????????
 
-compare2(cnt_es, "Nanog_hi",  "Nanog_med", conditions, "es_serum: more pluripotent cells",  "es_serum: primed cells")
-compare2(cnt_es, "Nanog_hi",  "Nanog_lo",  conditions, "es_serum: more pluripotent cells",  "es_serum: differentiating cells")
-compare2(cnt_es, "Nanog_med", "Nanog_lo",  conditions, "es_serum: primed cells",            "es_serum: differentiating cells")
+compare2(cnt_es_notnorm, "a2i", set_2i,           conditions, "mES_a2i",    "mES_2i")
+compare2(cnt_es_notnorm, "a2i", set_nanog,        conditions, "mES_a2i",    "mES_nanog") #  ???????????????????
+
+compare2(cnt_es_notnorm, "Nanog_hi",  "Nanog_med", conditions, "mES_serum: more pluripotent cells",  "mES_serum: primed cells")
+compare2(cnt_es_notnorm, "Nanog_hi",  "Nanog_lo",  conditions, "mES_serum: more pluripotent cells",  "mES_serum: differentiating cells")
+compare2(cnt_es_notnorm, "Nanog_med", "Nanog_lo",  conditions, "mES_serum: primed cells",            "mES_serum: differentiating cells")
 
 #rs<-dbSendQuery(con, "select distinct dataset1,dataset2 from diffexp")
 #fetch(rs,n=-1)
@@ -122,7 +133,7 @@ compare2(cnt_es, "Nanog_med", "Nanog_lo",  conditions, "es_serum: primed cells",
 # Nanog-medium -> serum: primed cells
 # Nanog-high -> serum: more pluripotent cells
 
-
+# what about sandberg?
 
 # 2C 2i
 # (2C + 2i) vs nanog*
@@ -191,7 +202,7 @@ uploadgodm <- function(thef, ds1, ds2){
   dbWriteTable(con,c("esexpress","godm"),onedm,append=TRUE,row.names=FALSE)
 }
 
-uploadgodm("../../data/dm/goPvalue_2i2_a2i2.txt",    "2i2",   "a2i2")
+uploadgodm("../../data/dm/goPvalue_2i2_a2i2.txt",    "2i2",   "a2i2")   #### renaming??? ask ola
 uploadgodm("../../data/dm/goPvalue_serum2_2i2.txt",  "serum2","2i2")
 uploadgodm("../../data/dm/goPvalue_serum2_a2i2.txt", "serum2","a2i2")
 
@@ -210,6 +221,6 @@ uploadgenedm <- function(thef,ds){
   dbWriteTable(con,c("esexpress","genedm"),onedm,append=TRUE,row.names=FALSE)
 }
 dbGetQuery(con,sprintf("delete from genedm;"))
-uploadgenedm("../../data/dm/DM2i2.txt",    "es_2i")
-uploadgenedm("../../data/dm/DMa2i2.txt",   "es_a2i")
-uploadgenedm("../../data/dm/DMserum2.txt", "es_serum")
+uploadgenedm("../../data/dm/DM2i2.txt",    "mES_2i")
+uploadgenedm("../../data/dm/DMa2i2.txt",   "mES_a2i")      #ok now?
+uploadgenedm("../../data/dm/DMserum2.txt", "mES_serum")
