@@ -771,12 +771,13 @@ view_diffexp2 = (dslist) ->
     elinkcsv.attr href: getdsquery()
 
   ## Choice of dataset 1 and 2
-  for rec in dslist
-    eds1.append makeoption rec.dataset1,rec.dataset1
+  eds1.empty()
+  for rec in (makeunique (dslist.map (x) -> x.dataset1)).sort()
+    eds1.append makeoption rec,rec
   updateds2 = () ->
-    for rec in dslist
-      if eds1.val() == rec.dataset1
-        eds2.append makeoption rec.dataset2,rec.dataset2
+    eds2.empty()
+    for rec in (makeunique ((dslist.filter (x) -> eds1.val()==x.dataset1).map (x) -> x.dataset2)).sort()
+      eds2.append makeoption rec,rec
   updateds2()
   form2.find("#ds1").change () ->
     updateds2()
@@ -911,14 +912,14 @@ makeoption = (val,title) ->
   return eopt
 
 
-#function makeunique(a)
-#    temp = {}
-#    for i in [0..(a.length-1)]
-#        temp[a[i]] = true
-#    r = []
-#    for k in temp
-#        r.push k
-#    return r
+makeunique = (a) ->
+  temp = {}
+  for x in a
+    temp[x] = true
+  r = []
+  for k in Object.keys(temp)
+    r.push k
+  return r
 
 
 ###########################################################################
@@ -968,10 +969,12 @@ view_godm2 = (dslist) ->
     elinkcsv.attr href: getdsquery()
 
   ## Choice of dataset 1 and 2
-  for rec in ($.unique dslist)
+  eds1.empty()
+  for rec in (makeunique dslist).sort()
     eds1.append makeoption rec.dataset1,rec.dataset1
   updateds2 = () ->
-    for rec in ($.unique dslist)
+    eds2.empty()
+    for rec in (makeunique dslist).sort()
       if eds1.val() == rec.dataset1
         eds2.append makeoption rec.dataset2,rec.dataset2
   updateds2()
