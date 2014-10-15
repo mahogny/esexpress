@@ -1,5 +1,7 @@
 <?php
 
+ini_set('memory_limit', '512M');
+
 ## http://localhost/geneinfo.php?q={%22gene%22:%22ENSMUSG00000000049%22}
 
 include "common.php";
@@ -80,7 +82,7 @@ while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))
     else
       $togenesym = "missing in db ".$togeneid;
     $thiscorr = $corr[$i];
-    if($togeneid != $geneid)
+    if($togeneid != $geneid && abs($thiscorr)>0.3)
       $outcorr[$line['dataset']][]=array('geneid' => $togeneid, 'genesym' => $togenesym, 'corr' => $thiscorr);
     }
   }
@@ -95,8 +97,6 @@ $results['time_getcorr']=$time_getcorr;
 $results['time_getgenedm']=$time_getgenedm;
 
 
-
-
 ### Return result
 header('filename="data.json"; ');
 header('Content-Type: application/json; ');
@@ -107,3 +107,4 @@ include "end.php";
 
 
 ?>
+
