@@ -16,8 +16,10 @@ if(!exists("genes")){
 
 #genes <- c("Vmn1r125","Gm14036")
 
+############### bug: case sensitive!!!
+
 #Convert to ensemblid
-genes <- geneidsym$geneid[which(geneidsym$geneid %in% genes | geneidsym$genesym %in% genes)]
+genes <- geneidsym$geneid[which(tolower(geneidsym$geneid) %in% tolower(genes) | tolower(geneidsym$genesym) %in% tolower(genes))]
 
 #dbSendQuery(con, "CREATE TEMPORARY TABLE geneset (fromgene TEXT);")
 

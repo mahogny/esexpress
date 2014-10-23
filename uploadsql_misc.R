@@ -119,6 +119,28 @@ compare2(cnt_es_notnorm, "Nanog_hi",  "Nanog_med", conditions, "mES_serum: more 
 compare2(cnt_es_notnorm, "Nanog_hi",  "Nanog_lo",  conditions, "mES_serum: more pluripotent cells",  "mES_serum: differentiating cells")
 compare2(cnt_es_notnorm, "Nanog_med", "Nanog_lo",  conditions, "mES_serum: primed cells",            "mES_serum: differentiating cells")
 
+compare2(cnt_es_notnorm, "Nanog_med", "Nanog_lo",  conditions, "mES_serum: primed cells",            "mES_serum: differentiating cells")
+
+
+
+#todo concat es and sb
+#all(rownames(datsand) %in% rownames(cnt_es_notnorm))
+cnt_es_and_sb <- cbind(datsand, cnt_es_notnorm[rownames(datsand),])
+conditions_es_and_sb <- c(conditions, colnames(datsand))
+conditions_es_and_sb[grep("lateblast",conditions_es_and_sb)] <- "sb_lateblast"
+conditions_es_and_sb[grep("midblast",conditions_es_and_sb)] <- "sb_midblast"
+conditions_es_and_sb[grep("earlyblast",conditions_es_and_sb)] <- "sb_earlyblast"
+
+
+compare2(cnt_es_and_sb, "2i", "sb_earlyblast",  conditions_es_and_sb, "mES_2i",      "sandberg_earlyblast")
+compare2(cnt_es_and_sb, "2i", "sb_midblast",    conditions_es_and_sb, "mES_2i",      "sandberg_midblast")
+compare2(cnt_es_and_sb, "2i", "sb_lateblast",   conditions_es_and_sb, "mES_2i",      "sandberg_lateblast")
+
+
+
+#datsand
+
+
 #rs<-dbSendQuery(con, "select distinct dataset1,dataset2 from diffexp")
 #fetch(rs,n=-1)
 
