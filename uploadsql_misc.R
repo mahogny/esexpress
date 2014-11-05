@@ -91,6 +91,8 @@ compare2 <- function(cnt_es, seta, setb, conditions, ds1name, ds2name){
   
   #print(length(which(is.na(out2$geneid))))
   
+  con <- connectes() #this works around any time-out problems
+
   dbGetQuery(con,sprintf("delete from diffexp WHERE dataset1='%s' AND dataset2='%s';",ds1name,ds2name))
   dbGetQuery(con,sprintf("delete from diffexp WHERE dataset1='%s' AND dataset2='%s';",ds2name,ds1name))
   
@@ -110,10 +112,10 @@ compare2 <- function(cnt_es, seta, setb, conditions, ds1name, ds2name){
 dbGetQuery(con,sprintf("delete from diffexp;"))
 
 compare2(cnt_es_notnorm, "2i",   "2C",            conditions, "mES_2i: blastocyst-like",  "mES_2i: 2C-like")   #done
-compare2(cnt_es_notnorm, set_2i, set_nanog,       conditions, "mES_2i",                   "mES_nanog")  # ????????????????
+compare2(cnt_es_notnorm, set_2i, set_nanog,       conditions, "mES_2i",                   "mES_serum") 
 
 compare2(cnt_es_notnorm, "a2i", set_2i,           conditions, "mES_a2i",    "mES_2i")
-compare2(cnt_es_notnorm, "a2i", set_nanog,        conditions, "mES_a2i",    "mES_nanog") #  ???????????????????
+compare2(cnt_es_notnorm, "a2i", set_nanog,        conditions, "mES_a2i",    "mES_serum") 
 
 compare2(cnt_es_notnorm, "Nanog_hi",  "Nanog_med", conditions, "mES_serum: more pluripotent cells",  "mES_serum: primed cells")
 compare2(cnt_es_notnorm, "Nanog_hi",  "Nanog_lo",  conditions, "mES_serum: more pluripotent cells",  "mES_serum: differentiating cells")
@@ -224,9 +226,9 @@ uploadgodm <- function(thef, ds1, ds2){
   dbWriteTable(con,c("esexpress","godm"),onedm,append=TRUE,row.names=FALSE)
 }
 
-uploadgodm("../../data/dm/goPvalue_2i2_a2i2.txt",    "2i2",   "a2i2")   #### renaming??? ask ola
-uploadgodm("../../data/dm/goPvalue_serum2_2i2.txt",  "serum2","2i2")
-uploadgodm("../../data/dm/goPvalue_serum2_a2i2.txt", "serum2","a2i2")
+uploadgodm("../../data/dm/goPvalue_2i2_a2i2.txt",    "mES_2i (2)",   "mES_a2i (2)")   #### renaming??? ask ola
+uploadgodm("../../data/dm/goPvalue_serum2_2i2.txt",  "mES_serum (2)","mES_2i (2)")
+uploadgodm("../../data/dm/goPvalue_serum2_a2i2.txt", "mES_serum (2)","mES_a2i (2)")
 
 
 dbGetQuery(con,sprintf("select * from godm limit 1","2i2"))

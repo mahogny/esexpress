@@ -22,9 +22,13 @@ dbname <- auth[2]
 dbuser <- auth[3]
 dbpass <- auth[4]
 
-drv <- dbDriver("PostgreSQL")
-#con <- dbConnect(drv, dbname=paste("postgres://",dbhost,"/",dbname,sep=""), user=dbuser, password=dbpass)
-con <- dbConnect(drv, host=dbhost, dbname=dbname, user=dbuser, password=dbpass)
+connectes <- function(){
+  drv <- dbDriver("PostgreSQL")
+  #con <- dbConnect(drv, dbname=paste("postgres://",dbhost,"/",dbname,sep=""), user=dbuser, password=dbpass)
+  con <- dbConnect(drv, host=dbhost, dbname=dbname, user=dbuser, password=dbpass)
+  return(con)  
+}
+con <- connectes()
 
 dbSendQuery(con,"SET search_path = public, esexpress;")
 
