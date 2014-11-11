@@ -1,4 +1,4 @@
-source("uploadsql.r")
+source("uploadsql.R")
 
 #dbGetQuery(con,sprintf("delete from geneexp;"))
 uploadcounts("es_serum",ds_ola_lif)
