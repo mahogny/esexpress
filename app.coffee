@@ -211,7 +211,7 @@ view_gene_disp = (geneinfo, showexplevel) ->
   svg = d3.select("#expressionhist")
   svg = svg
     .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+    .attr("height", height + margin.top + margin.bottom+5)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
@@ -629,12 +629,19 @@ $ ->
     floatdivhandler2 "#svg_cellcorr","#float-pickgeneset",GENESETTAB_CELLCOR
     floatdivhandler2 "#svg_download","#float-download","download"
 
+    addattrcursor "#svg_diffexp"
+    addattrcursor "#svg_publication"
+    addattrcursor "#svg_gonoise"
     ($ "#svg2").find("#svg_diffexp").click () ->
       view_diffexp()
     ($ "#svg2").find("#svg_publication").click () ->
       view_publication()
     ($ "#svg2").find("#svg_gonoise").click () ->
       view_godm()
+
+addattrcursor = (linkid) ->
+  thesvg = $ "#svg2"
+  thesvg.find(linkid).attr "style",("cursor: pointer; "+(thesvg.find(linkid).attr "style"))
 
 
 view_publication = () ->
@@ -678,6 +685,8 @@ floatdivhandler = (buttonid,floatname,divname) ->
 ##### Set a button to open a hidden div   (called from link in div)
 floatdivhandler2 = (linkid, floatname,divname) ->
   thesvg = $ "#svg2"
+  addattrcursor linkid
+  #thesvg.find(linkid).attr "style",("cursor: pointer; "+(thesvg.find(linkid).attr "style"))
   thesvg.find(linkid).click () ->
     thediv = $(floatname)
     if(current_divname!=divname)
@@ -787,6 +796,8 @@ view_diffexp2 = (dslist) ->
     thisform2 = form2
     return () ->
       shownumgenes = +thisform2.find("#diffexpshownum").val()
+      nameFrom = form2.find("#ds1").val()
+      nameTo = form2.find("#ds2").val()
       d3.csv getdsquery(), (data) ->
         etable.empty()
         for i in [0..(Math.min shownumgenes,(data.length-1))]
@@ -824,7 +835,7 @@ view_diffexp2 = (dslist) ->
         svg = d3.select("#diffexpgraph")
         svg = svg
           .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
+          .attr("height", height + margin.top + margin.bottom+5)
           .append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
@@ -863,7 +874,7 @@ view_diffexp2 = (dslist) ->
           .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
           .attr("font-size","10px")
           .style("text-anchor", "middle")
-          .text("Log mean (from)");
+          .text("Log mean ("+nameFrom+")");
         svg.append("text")
           .attr("transform", "rotate(-90)")
           .attr("y", 0 - margin.left)
@@ -871,7 +882,7 @@ view_diffexp2 = (dslist) ->
           .attr("dy", "1em")
           .attr("font-size","10px")
           .style("text-anchor", "middle")
-          .text("Log mean (to)");
+          .text("Log mean ("+nameTo+")");
 
         for i in [0..(datasub.length-1)]
           svg.append("circle")
