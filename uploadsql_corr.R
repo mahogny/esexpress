@@ -4,14 +4,14 @@ toupload <- Sys.getenv("upload")
 
 
 if(toupload==1){
-  uploadcorr("es_serum",getexpressed(ds_ola_lif))  
+  uploadcorr("mES_serum",getexpressed(ds_ola_lif))  
 }
 if(toupload==2){
-  uploadcorr("es_2i", getexpressed(ds_ola_2i))   
+  uploadcorr("mES_2i", getexpressed(ds_ola_2i))   
 }
 if(toupload==3){
-  uploadcorr("es_a2i",getexpressed(ds_ola_a2i))
-}
+  uploadcorr("mES_a2i",getexpressed(ds_ola_a2i))
+}  ### todo these three
 
 if(toupload==4){
   uploadcorr("sandberg_earlyblast",getexpressed(ds_s_eblast))
