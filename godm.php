@@ -5,10 +5,6 @@ $query = json_decode(getdef($_GET,'q','{}'),TRUE);
 $ds1 = filteralpha(getdef($query, 'dataset1', ''));
 $ds2 = filteralpha(getdef($query, 'dataset2', ''));
 
-
-echo $ds1;
-echo $ds2;
-
 if($ds1=="" && $ds2==""){
   $ps=pg_prepare($db, 'getgene',"SELECT DISTINCT * FROM godm NATURAL JOIN goinfo");
   $rs=pg_execute($db, 'getgene', array());

@@ -23,15 +23,23 @@
         which accompanies the publication 
         <a id="paperlink">
           Single cell mRNA-sequencing reveals cell-to-cell variation in three mouse ES cell culture conditions ()
-          <i>Kolodziejczyk A.A., Kim, J.K., Illicic, T., Tsang, J, Henriksson, J., Tuck AC, B&uuml;hler M, Liu, P.2, Marioni, J.C. and Teichmann, S.A.</i>
+          <i>Kolodziejczyk A.A., Kim, J.K., Illicic, T., Tsang, J, Henriksson, J., Tuck AC, B&uuml;hler M, Liu, P., Marioni, J.C. and Teichmann, S.A.</i>
         </a>
         <b>issue</b></p>
 
+        <p>Further, the database includes and compares our data with data from
+        <a href="http://www.ncbi.nlm.nih.gov/pubmed/24408435">
+         Single-cell RNA-seq reveals dynamic, random monoallelic gene expression in mammalian cells (2014)
+         <i>Deng Q, Ramsk&ouml;ld D, Reinius B, Sandberg R</i>, Science
+        </a>
+        </p>
+
+
         <p>
-          The data was produced and made available by the <a href="http://teichlab.org">Teichmann group</a> at EMBL-EBI.
-          Note that comparison between large number of genes and datasets can take an excessive amount of time. Click on the heatmaps
-          to viem in larger resolution. Expression levels are shown in log-2 scale, smoothened with a gaussian kernel.
-          Correlation is according to Spearman.
+          The data were produced and made available by the <a href="http://teichlab.org">Teichmann group</a> at EMBL-EBI.
+          Note that comparison between large numbers of genes and datasets can take a large amount of time. Click on the heatmaps
+          to view at higher resolution. Expression levels are shown in log-2 scale, smoothed with a gaussian kernel.
+          Correlation is presented as Spearman &rho;. 
         </p>
         </br>
         
@@ -126,7 +134,8 @@
           <label for=""><small>Datasets available:</small></label><br/>
           <a href="static/counttable_es.csv">ES count tables (CSV)</a><br/>
           <a href="diffexp.php">All differential expression (CSV)</a><br/>
-          <a href="godm.php">All noise of GO (CSV)</a><br/>
+          <a href="godm.php">Noise for all GO (CSV)</a><br/>
+          <a href="genedm.php">Noise for all genes (CSV)</a><br/>
           <a href="https://github.com/mahogny/esexpress">Source code for website</a><br/>
           See also pages for individual genes for specific downloads
           </ul>
@@ -276,8 +285,8 @@
             <tr><td>
               <h1>Geneset</h1>
             </td><td align="right">
-              <button type="button" class="btn btn-primary" id="btab_betweengenes">Gene vs gene</button>
-              <button type="button" class="btn btn-primary" id="btab_cellcorr">Cell vs gene</button>
+              <button type="button" class="btn btn-primary" id="btab_betweengenes">Clustering genes</button>
+              <button type="button" class="btn btn-primary" id="btab_cellcorr">Clustering cells</button>
               &nbsp;
               &nbsp;
               &nbsp;

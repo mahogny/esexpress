@@ -11,7 +11,7 @@ if(!exists("genes")){
   genes <- read.table("genelist_pluripotency.txt",stringsAsFactors = FALSE)[,1]
 }
 if(!exists("datasets"))
-  datasets<-c("es_lif")
+  datasets<-c("mES_serum")
 if(!exists("graphw"))
   graphw<-500
 

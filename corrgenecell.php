@@ -31,7 +31,7 @@
   pclose($handle);
 
   header("Cache-Control: no-cache, must-revalidate"); 
-  if(strlen($ret)==0){
+  if(strlen($ret)<100){ #for any errors?
     echo "error running " . $cmd;
   } else {
     header("Content-type:image/png");
