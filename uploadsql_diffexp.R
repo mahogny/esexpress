@@ -38,9 +38,9 @@ compare2 <- function(cnt_es, seta, setb, conditions, ds1name, ds2name){
   
   #Store twice for simplicity
   print("writing table 1...")
-  dbWriteTable(con,c("esexpress","diffexp"),out3,append=TRUE,row.names=FALSE)
+  dbWriteTable(con,c("espresso","diffexp"),out3,append=TRUE,row.names=FALSE)
   print("writing table 2...")
-  dbWriteTable(con,c("esexpress","diffexp"),out4,append=TRUE,row.names=FALSE)
+  dbWriteTable(con,c("espresso","diffexp"),out4,append=TRUE,row.names=FALSE)
   
   #an alternative is to just query twice...
 }

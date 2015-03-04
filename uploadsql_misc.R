@@ -10,7 +10,7 @@ geneinfo <- geneinfo[which(geneinfo$geneid %in% rownames(ds_ola_lif)),]
 
 
 dbGetQuery(con,"delete from geneinfo;")
-dbWriteTable(con,c("esexpress","geneinfo"),geneinfo,append=TRUE,row.names=FALSE)
+dbWriteTable(con,c("espresso","geneinfo"),geneinfo,append=TRUE,row.names=FALSE)
 dbReadTable(con,"geneinfo")
 
 
@@ -76,10 +76,10 @@ readgofile <- function(){
   gotable <- data.frame(goid=totgoid, goname=totgoname, godef=totgodef, stringsAsFactors = FALSE)
   return(gotable)
 }
-#gotable <- readgofile()
+gotable <- readgofile()
 #write.csv(gotable, "../../data/gosummary.csv")
 
 #head(gotable)
 
-dbWriteTable(con,c("esexpress","goinfo"),gotable,append=TRUE,row.names=FALSE)
+dbWriteTable(con,c("espresso","goinfo"),gotable,append=TRUE,row.names=FALSE)
 

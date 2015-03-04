@@ -30,7 +30,7 @@ connectes <- function(){
 }
 con <- connectes()
 
-dbSendQuery(con,"SET search_path = public, esexpress;")
+dbSendQuery(con,"SET search_path = public, espresso;")
 
 
 expandarray <- function(x){

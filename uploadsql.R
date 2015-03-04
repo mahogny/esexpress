@@ -2,7 +2,6 @@
 ### todo use esexpress schema
 library("DESeq")
 library("DESeq2")
-library("stringr")
 source("common.R")
 
 
@@ -20,32 +19,34 @@ readcntola <- function(f){
   return(dat[,-1])
 }
   
-cnt_es<-
-  cbind(
-    readcntola("../../data/ola_mES_2i_2.txt"),
-    readcntola("../../data/ola_mES_2i_3.txt"),
-    readcntola("../../data/ola_mES_2i_4.txt"),
-    readcntola("../../data/ola_mES_2i_5.txt"),
-    readcntola("../../data/ola_mES_a2i_2.txt"),
-    readcntola("../../data/ola_mES_a2i_3.txt"),
-    readcntola("../../data/ola_mES_lif_1.txt"),
-    readcntola("../../data/ola_mES_lif_2.txt"),
-    readcntola("../../data/ola_mES_lif_3.txt"))
+# cnt_es<-
+#   cbind(
+#     readcntola("../../data/ola_mES_2i_2.txt"),
+#     readcntola("../../data/ola_mES_2i_3.txt"),
+#     readcntola("../../data/ola_mES_2i_4.txt"),
+#     readcntola("../../data/ola_mES_2i_5.txt"),
+#     readcntola("../../data/ola_mES_a2i_2.txt"),
+#     readcntola("../../data/ola_mES_a2i_3.txt"),
+#     readcntola("../../data/ola_mES_lif_1.txt"),
+#     readcntola("../../data/ola_mES_lif_2.txt"),
+#     readcntola("../../data/ola_mES_lif_3.txt"))
+
+cnt_es<-read.table("../../data/n_counts_mES.txt",header=TRUE)
 
 
 
 #remove dead cells
-removedcells <- read.table("../../data/removed_cells.txt",header=FALSE,sep=" ",stringsAsFactors=FALSE)[,2]
-cnt_es <- cnt_es[,-(which(colnames(cnt_es) %in% removedcells))]
+#removedcells <- read.table("../../data/removed_cells.txt",header=FALSE,sep=" ",stringsAsFactors=FALSE)[,2]
+#cnt_es <- round(cnt_es[,-(which(colnames(cnt_es) %in% removedcells))])
 
 #save new table
 #write.table(cnt_es,"static/counttable_es.csv")
 
-#remove ERCs and other crap
-cnt_es <- cnt_es[-grep("ERCC",rownames(cnt_es)),]
-cnt_es <- cnt_es[-grep("_",rownames(cnt_es)),]
+#remove ERCs and other crap. no longer needed
+#cnt_es <- cnt_es[-grep("ERCC",rownames(cnt_es)),]
+#cnt_es <- cnt_es[-grep("_",rownames(cnt_es)),]
 
-#normalize
+#normalize. no longer needed
 cnt_es_notnorm <- cnt_es
 cnt_es <- normalizeDeseq(cnt_es)
 
@@ -86,7 +87,7 @@ ds_s_eblast<-nsand[ids,grep("earlyblast",colnames(nsand))]
 
 ####################################################################################
 ## Count tables
-uploadcounts <- function(dataset, cnt){
+uploadcounts <- function(dataset, cnt){  
   dbGetQuery(con,sprintf("delete from geneexp where dataset='%s';",dataset))
   geneexp<-cbind(dataset,row.names(cnt),encodearrayS(colnames(cnt)),apply(cnt,1,encodearray))
   colnames(geneexp)<-c("dataset","fromgene","fromcell","exp")
@@ -98,7 +99,6 @@ uploadcounts <- function(dataset, cnt){
   }
 }
 
-#cnt_es<-read.table("../../n_counts_mES.txt",header=TRUE)
 
 
 
@@ -152,7 +152,7 @@ getexpressed <- function(ds){
 #nrow(red_ds_ola_2i)
 
 #foo <- apply(ds_ola_lif>20,1,function(x) length(which(x))>3)    #30 for 600 genes
-which(rownames(ds_s_eblast) %in% names(foo)[which(foo)])
+#which(rownames(ds_s_eblast) %in% names(foo)[which(foo)])
 
 #check that all genes on basal list are there!  >20 & >3 is ok
 #plugenes <- read.table("genelist_pluripotency.txt",stringsAsFactors = FALSE)[,1]

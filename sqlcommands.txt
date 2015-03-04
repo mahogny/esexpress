@@ -1,9 +1,11 @@
+psql -h pgsql-hxvm-012 trgmescpro --user espresso
 
-create schema esexpress;
+
+create schema espresso;
 
 create extension pg_trgm;   -- requires -contrib
 
-CREATE TABLE esexpress.geneinfo (
+CREATE TABLE espresso.geneinfo (
 	geneid     TEXT  PRIMARY KEY,
 	genesym    TEXT NOT NULL,
 	pvalbiovar NUMERIC NOT NULL
@@ -14,7 +16,7 @@ CREATE INDEX geneinfotrgm ON geneinfo USING gist(genesym gist_trgm_ops);
 
 
 
-CREATE TABLE esexpress.genecorr (
+CREATE TABLE espresso.genecorr (
 	dataset   TEXT,
 	fromgene  TEXT,
 	togene    TEXT[] NOT NULL,
@@ -24,30 +26,23 @@ CREATE TABLE esexpress.genecorr (
 	corrm     REAL[] NOT NULL,
 	PRIMARY KEY (dataset, fromgene)
 );
-CREATE INDEX ON esexpress.genecorr (fromgene);
+CREATE INDEX ON espresso.genecorr (fromgene);
 
-CREATE TABLE esexpress.geneexp (
+CREATE TABLE espresso.geneexp (
 	dataset    TEXT,
 	fromgene   TEXT,
 	fromcell   TEXT[] NOT NULL,
 	exp        REAL[] NOT NULL,   --indexed over cells
 	PRIMARY KEY (dataset,fromgene)
 );
-CREATE INDEX ON esexpress.geneexp (fromgene);
-
-
-CREATE TABLE esexpress.genecorrdiff (
-	datasetA   TEXT,
-	datasetB   TEXT,
-	fromgene   TEXT,
-	corrdiff   DOUBLE[] NOT NULL,
-	PRIMARY KEY (datasetA, datasetB, fromgene);
-);
+CREATE INDEX ON espresso.geneexp (fromgene);
 
 
 
 
-CREATE TABLE esexpress.diffexp (
+
+
+CREATE TABLE espresso.diffexp (
 	dataset1   TEXT,
 	dataset2   TEXT,
 	geneid     TEXT,
@@ -60,7 +55,7 @@ CREATE TABLE esexpress.diffexp (
 );
 
 
-CREATE TABLE esexpress.godm (
+CREATE TABLE espresso.godm (
 	dataset1   TEXT,
 	dataset2   TEXT,
 	goid       TEXT,
@@ -71,7 +66,7 @@ CREATE TABLE esexpress.godm (
 );
 
 
-CREATE TABLE esexpress.goinfo (
+CREATE TABLE espresso.goinfo (
 	goid       TEXT,
 	goname     TEXT,
         godef      TEXT,
@@ -79,7 +74,7 @@ CREATE TABLE esexpress.goinfo (
 );
 
 
-CREATE TABLE esexpress.genedm (
+CREATE TABLE espresso.genedm (
 	dataset      TEXT,
 	geneid       TEXT,
 	genedm       TEXT,
@@ -87,3 +82,13 @@ CREATE TABLE esexpress.genedm (
 );
 
 
+
+========== not used
+
+CREATE TABLE espresso.genecorrdiff (
+	datasetA   TEXT,
+	datasetB   TEXT,
+	fromgene   TEXT,
+	corrdiff   DOUBLE[] NOT NULL,
+	PRIMARY KEY (datasetA, datasetB, fromgene)
+);
