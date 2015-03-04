@@ -41,7 +41,7 @@ $time_getgenei = microtime()-$time_getgenei;
 
 ### Query database for DM
 $time_getgenedm = microtime();
-$ps=pg_prepare($db, 'getgenedm','SELECT * FROM esexpress.genedm WHERE geneid=$1');
+$ps=pg_prepare($db, 'getgenedm','SELECT * FROM genedm WHERE geneid=$1');
 $rs=pg_execute($db, 'getgenedm', array($geneid));
 $resultsdm=array();
 while($line=pg_fetch_array($rs,null,PGSQL_ASSOC))

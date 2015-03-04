@@ -1,9 +1,9 @@
 source("uploadsql.R")
 
 #dbGetQuery(con,sprintf("delete from geneexp;"))
-uploadcounts("es_serum",ds_ola_lif)
-uploadcounts("es_2i", ds_ola_2i)
-uploadcounts("es_a2i",ds_ola_a2i)
+uploadcounts("mES_serum",ds_ola_lif)
+uploadcounts("mES_2i", ds_ola_2i)
+uploadcounts("mES_a2i",ds_ola_a2i)
 #dbReadTable(con,"geneexp")[,2]
 
 
