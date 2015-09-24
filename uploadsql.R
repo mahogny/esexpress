@@ -1,7 +1,7 @@
 
 ### todo use esexpress schema
 library("DESeq")
-library("DESeq2")
+#library("DESeq2")
 source("common.R")
 
 
@@ -59,7 +59,7 @@ ds_ola_a2i<-cnt_es[ids,grep("_a2i_",colnames(cnt_es))]
 
 
 cellstates <- read.csv("../../data/cell_states.txt",sep=" ",stringsAsFactors=FALSE)[,c(2,3)]
-conditions <- merge(data.frame(cell=colnames(cnt_es),stringsAsFactors = FALSE), cellstates)$state
+conditions <- cellstates$state #merge(data.frame(cell=colnames(cnt_es),stringsAsFactors = FALSE), cellstates)$state    #scrambling!!!!
 
 set_2i=c("2i","2C")
 set_nanog=c("Nanog_hi","Nanog_med","Nanog_lo")

@@ -1,13 +1,13 @@
-if(!(R.version$major=="3" & R.version$minor=="1.1")){
-        cat("Wrong version of R\n")
-        quit(save="no")
-}
+# if(!(R.version$major=="3" & R.version$minor=="1.1")){
+#         cat("Wrong version of R\n")
+#         quit(save="no")
+# }
 
 
 
 
-.libPaths(c(.libPaths(),"/net/isilonP/public/rw/homes/w3_rst01/R/x86_64-redhat-linux-gnu-library/3.1"))
-.libPaths(c(.libPaths(),"/home/mahogny/R/x86_64-suse-linux-gnu-library/3.1"))
+#.libPaths(c(.libPaths(),"/net/isilonP/public/rw/homes/w3_rst01/R/x86_64-redhat-linux-gnu-library/3.1"))
+#.libPaths(c(.libPaths(),"/home/mahogny/R/x86_64-suse-linux-gnu-library/3.1"))
 
 
 library("DBI")

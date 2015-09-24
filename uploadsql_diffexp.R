@@ -1,7 +1,7 @@
 source("uploadsql.R")
 
 toupload <- Sys.getenv("upload")
-
+#toupload <- 1
 
 
 
@@ -10,12 +10,15 @@ compare2 <- function(cnt_es, seta, setb, conditions, ds1name, ds2name){
     conditions[conditions==x] <- "SETA"
   for(x in setb)
     conditions[conditions==x] <- "SETB"
+  cnt_es <- cnt_es[which(rowMeans(normalizeDeseq(cnt_es)) >50),]
   cds <- newCountDataSet(cnt_es, conditions)
   cds <- estimateSizeFactors( cds )
   cds <- estimateDispersions( cds )
+#  out <- nbinomTest(cds, "2i", "2C")
   out <- nbinomTest(cds, "SETA", "SETB")
-  out <- out[order(out$padj),]
+#   out <- out[order(out$padj),]
   out2 <- out[which(out$padj<0.05),]
+  out2 <- out2[order(out2$padj),]
   out2 <- as.data.frame(out2,stringsAsFactors = FALSE)
   
   ds1name <- rep(ds1name,times = nrow(out2))
