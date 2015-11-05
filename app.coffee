@@ -6,7 +6,7 @@ GENESETTAB_BETWEENGENES = "betweengenes"
 tabcolorInactive = "#0033CC"
 tabcolorActive   = "#9933CC"
 
-publication_url = "http://example.com/new_url"
+publication_url = "http://www.sciencedirect.com/science/article/pii/S193459091500418X"
 
 query = 
   gene: ""
